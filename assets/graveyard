@@ -1,0 +1,83 @@
+
+Game.EntityMixin.PlayerMessager = {
+  META: {
+    mixinName: 'PlayerMessager',
+    mixinGroup: 'PlayerMessager',
+    listeners: {
+      'walkForbidden': function(evtData) {
+        Game.Message.send('you can\'t walk into the '+evtData.target.getName());
+        Game.renderDisplayMessage();
+        Game.Message.ageMessages();
+      },
+      'dealtDamage': function(evtData) {
+        Game.Message.send('you hit the '+evtData.damagee.getName()+' for '+evtData.damageAmount);
+        Game.renderDisplayMessage();
+      },
+      'madeKill': function(evtData) {
+        Game.Message.send('you killed the '+evtData.entKilled.getName());
+        Game.renderDisplayMessage();
+      },
+      'damagedBy': function(evtData) {
+        Game.Message.send('the '+evtData.damager.getName()+' hit you for '+evtData.damageAmount);
+        Game.renderDisplayMessage();
+      },
+      'killed': function(evtData) {
+        Game.Message.send('you were killed by the '+evtData.killedBy.getName());
+        Game.renderDisplayMessage();
+      }
+    }
+  }
+//    Game.Message.send(msg);
+};
+
+Game.EntityMixin.PlayerActor = {
+  META: {
+    mixinName: 'PlayerActor',
+    mixinGroup: 'Actor',
+    stateNamespace: '_PlayerActor_attr',
+    stateModel:  {
+      baseActionDuration: 1000,
+      actingState: false,
+      currentActionDuration: 1000
+    },
+    init: function (template) {
+      //Game.Scheduler.add(this,true,1);
+    },
+    listeners: {
+      'actionDone': function(evtData) {
+        Game.Scheduler.setDuration(this.getCurrentActionDuration());
+        this.setCurrentActionDuration(this.getBaseActionDuration()+Game.util.randomInt(-5,5));
+        //setTimeout(function() {Game.TimeEngine.unlock();},1); // NOTE: this tiny delay ensures console output happens in the right order, which in turn means I have confidence in the turn-taking order of the various entities
+        // console.log("end player acting");
+      }
+    }
+  },
+  getBaseActionDuration: function () {
+    return this.attr._PlayerActor_attr.baseActionDuration;
+  },
+  setBaseActionDuration: function (n) {
+    this.attr._PlayerActor_attr.baseActionDuration = n;
+  },
+  getCurrentActionDuration: function () {
+    return this.attr._PlayerActor_attr.currentActionDuration;
+  },
+  setCurrentActionDuration: function (n) {
+    this.attr._PlayerActor_attr.currentActionDuration = n;
+  },
+  isActing: function (state) {
+    if (state !== undefined) {
+      this.attr._PlayerActor_attr.actingState = state;
+    }
+    return this.attr._PlayerActor_attr.actingState;
+  },
+    act: function () {
+    // console.log("begin player acting");
+    // console.log("player pre-lock engine lock state is "+Game.TimeEngine._lock);
+    if (this.isActing()) { return; } // a gate to deal with JS timing issues
+    this.isActing(true);
+    Game.refresh();
+    Game.TimeEngine.lock();
+    // console.log("player post-lock engine lock state is "+Game.TimeEngine._lock);
+    this.isActing(false);
+  }
+};
