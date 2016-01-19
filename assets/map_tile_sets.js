@@ -24,8 +24,8 @@ Game.MapTileSets = {
         }
     },
     blankMap: {
-        _width: 50,
-        _height: 50, 
+        _width: 40,
+        _height: 40, 
         getMapTiles: function(){
             var mapTiles = Game.util.init2DArray(this._width,this._height,Game.Tile.floorTile);
             return mapTiles; 
