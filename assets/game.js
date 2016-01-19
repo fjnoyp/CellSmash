@@ -59,7 +59,8 @@ var Game = {
 
     for (var display_key in this._display) {
       if (this._display.hasOwnProperty(display_key)) {
-        this._display[display_key].o = new ROT.Display({width: this._display[display_key].w, height: this._display[display_key].h, spacing: Game._DISPLAY_SPACING});
+          this._display[display_key].o = new ROT.Display({width: this._display[display_key].w, height: this._display[display_key].h, spacing: Game._DISPLAY_SPACING, forceSquareRatio:true});
+          console.dir(this._display[display_key].o); 
       }
     }
     this.renderDisplayAll();
@@ -89,6 +90,7 @@ var Game = {
         Game.Actors = [];
         //Game.Scheduler.SetDuration(1000); 
 
+        Game.step = 0; 
 
         var timeBlock = {
             act: function(){
@@ -96,15 +98,29 @@ var Game = {
                 var done = null;
                 var promise = { then: function(cb) { done = cb; } }
 
-                //animate all actors every n time 
-                for(i=0; i<Game.Actors.length; i++){
-                    Game.Actors[i].doTurn(); 
+                //animate all actors every n time
+                if(Game.step >= 1){
+                    for(i=0; i<Game.Actors.length; i++){
+                        Game.Actors[i].doTurn(); 
+                    }
+                    Game.step = .25; 
+                }
+                else{
+                    Game.step += .25;                
                 }
                 Game.refresh(); 
 
-                setTimeout(function(){ done(); }, 200);
-                console.log( Game.Scheduler.getTime() ); 
+                setTimeout(function(){ done(); }, 50);
 
+
+                /*
+                if( Math.random() > .5){
+                    setTimeout(function(){ done(); }, 200);
+                }
+                else{
+                    setTimeout(function(){ done(); }, 1000);
+                }
+                */
                 return promise;
             }
         }
@@ -133,7 +149,7 @@ var Game = {
   },
 
   refresh: function () {
-    this.renderDisplayAll();
+      this.renderDisplayAll();
   },
   renderDisplayAll: function() {
     this.renderDisplayAvatar();
@@ -154,8 +170,8 @@ var Game = {
     if (this._curUiMode === null) {
       return;
     }
-    if (this._curUiMode.hasOwnProperty('render')) {
-      this._curUiMode.render(this._display.main.o);
+      if (this._curUiMode.hasOwnProperty('render')) {
+        this._curUiMode.render(this._display.main.o);
     }
   },
   renderDisplayMessage: function() {

@@ -12,7 +12,8 @@ Game.Map = function (mapTileSetName) {
     _width: this._tiles.length,
     _height: this._tiles[0].length,
     _entitiesByLocation: {},
-    _locationsByEntity: {}
+      _locationsByEntity: {}, 
+      _oldLocationsByEntity: {}
   };
 
   Game.DATASTORE.MAP[this.attr._id] = this;
@@ -43,8 +44,9 @@ Game.Map.prototype.getTile = function (x_or_pos,y) {
 };
 
 Game.Map.prototype.addEntity = function (ent,pos) {
-  this.attr._entitiesByLocation[pos.x+","+pos.y] = ent.getId();
-  this.attr._locationsByEntity[ent.getId()] = pos.x+","+pos.y;
+    this.attr._entitiesByLocation[pos.x+","+pos.y] = ent.getId();
+    this.attr._locationsByEntity[ent.getId()] = pos.x+","+pos.y;
+    this.attr._oldLocationsByEntity[ent.getId()] = pos.x+","+pos.y; 
   ent.setMap(this);
   ent.setPos(pos);
 };
@@ -52,12 +54,17 @@ Game.Map.prototype.addEntity = function (ent,pos) {
 Game.Map.prototype.updateEntityLocation = function (ent) {
   //console.log('updating position of '+ent.getName()+' ('+ent.getId()+')');
   var origLoc = this.attr._locationsByEntity[ent.getId()];
-  if (origLoc) {
-    this.attr._entitiesByLocation[origLoc] = undefined;
-  }
-  var pos = ent.getPos();
-  this.attr._entitiesByLocation[pos.x+","+pos.y] = ent.getId();
-  this.attr._locationsByEntity[ent.getId()] = pos.x+","+pos.y;
+    if (origLoc) {
+        this.attr._oldLocationsByEntity[ent.getId()] = this.attr._locationsByEntity[ent.getId()];
+        this.attr._entitiesByLocation[origLoc] = undefined;
+    }
+    var pos = ent.getPos();
+
+    this.attr._entitiesByLocation[pos.x+","+pos.y] = ent.getId();
+    this.attr._locationsByEntity[ent.getId()] = pos.x+","+pos.y;
+
+    
+
 };
 Game.Map.prototype.getEntity = function (x_or_pos,y) {
   var useX = x_or_pos,useY=y;
@@ -105,28 +112,48 @@ Game.Map.prototype.getRandomWalkableLocation = function() {
 };
 
 Game.Map.prototype.renderOn = function (display,camX,camY) {
-  // console.log("display is ");
-  // console.dir(display);
-  var dispW = display._options.width;
-  var dispH = display._options.height;
-  var xStart = camX-Math.round(dispW/2);
-  var yStart = camY-Math.round(dispH/2);
-  for (var x = 0; x < dispW; x++) {
-    for (var y = 0; y < dispH; y++) {
-      // Fetch the glyph for the tile and render it to the screen - sub in wall tiles for nullTiles / out-of-bounds
-      var mapPos = {x:x+xStart,y:y+yStart};
-      var tile = this.getTile(mapPos);
-      if (tile.getName() == 'nullTile') {
-        tile = Game.Tile.wallTile;
-      }
-      tile.draw(display,x,y);
-      var ent = this.getEntity(mapPos);
-      if (ent) {
-        ent.draw(display,x,y);
-      }
-    }
-  }
+    // console.log("display is ");
+    // console.dir(display);
+    var dispW = display._options.width;
+    var dispH = display._options.height;
+    var xStart = camX-Math.round(dispW/2);
+    var yStart = camY-Math.round(dispH/2);
+    for (var x = 0; x < dispW; x++) {
+        for (var y = 0; y < dispH; y++) {
+            // Fetch the glyph for the tile and render it to the screen - sub in wall tiles for nullTiles / out-of-bounds
+            var mapPos = {x:x+xStart,y:y+yStart};
+            var tile = this.getTile(mapPos);
+            if (tile.getName() == 'nullTile') {
+                tile = Game.Tile.wallTile;
+            }
+            tile.draw(display,x,y);
+            var ent = this.getEntity(mapPos);
+            if (ent) {
+                var oldPos = this.attr._oldLocationsByEntity[ent.getId()];
 
+                /*
+                console.log( x + (mapPos.x - parseInt(oldPos.substring(0, oldPos.indexOf(","))))*Game.step );
+                */
+
+
+                
+
+                var oldPosX = -xStart + parseInt(oldPos.substring(0, oldPos.indexOf(","))); 
+                var oldPosY = -yStart + parseInt(oldPos.substring(oldPos.indexOf(",")+1,oldPos.length));
+
+                ent.draw(display,
+                         x * Game.step + oldPosX * (1-Game.step),
+                         y * Game.step + oldPosY * (1-Game.step));
+
+
+                if(Game.step === 1){
+                    this.attr._oldLocationsByEntity[ent.getId()] =
+                        mapPos.x + "," + mapPos.y; 
+                }
+
+            }
+        }
+    }
 };
 
 Game.Map.prototype.toJSON = function () {

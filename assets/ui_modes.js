@@ -230,10 +230,10 @@ Game.UIMode.gamePlay = {
   setAvatar: function (a) {
     this.attr._avatarId = a.getId();
   },
-  render: function (display) {
+    render: function (display) {
     var fg = Game.UIMode.DEFAULT_COLOR_FG;
     var bg = Game.UIMode.DEFAULT_COLOR_BG;
-    this.getMap().renderOn(display,this.attr._cameraX,this.attr._cameraY);
+      this.getMap().renderOn(display,this.attr._cameraX,this.attr._cameraY);
     // display.drawText(1,1,"game play",fg,bg); // DEV
     // display.drawText(1,3,"press [Enter] to win",fg,bg);
     // display.drawText(1,4,"press [Esc] to lose",fg,bg);
@@ -318,36 +318,38 @@ Game.UIMode.gamePlay = {
   },
     setupNewGame: function () {
     this.setMap(new Game.Map('blankMap'));
-    this.setAvatar(Game.EntityGenerator.create('avatar'));
+        this.setAvatar(Game.EntityGenerator.create('avatar'));
 
-      this.getMap().addEntity(this.getAvatar(),{x:50,y:50});
-    this.setCameraToAvatar();
+        this.getMap().addEntity(this.getAvatar(),this.getMap().getRandomWalkableLocation());
+        this.setCameraToAvatar();
 
-      
+        
 
 
         //CREATE NEW MAP       
         //ADD ENTITIES TO MAP
-                var avatar = this.getAvatar(); 
-        for(i = 0; i<50; i++){
+        var avatar = this.getAvatar(); 
+        for(i = 0; i<100; i++){
             var newEntity = Game.EntityGenerator.create('cell');
-            newEntity.setMoveStrategy("CircleAround");
-                    avatar.addChildrenCell(newEntity); 
-            /*
+  
             if(i > 25){
                 newEntity.setAppearance('#ddd','B'); 
-                newEntity.setMoveStrategy("ClumpTogether"); 
+                newEntity.setMoveStrategy("ClumpTogether");
             }
-            */
+            else{
+                newEntity.setMoveStrategy("CircleAround");
+                avatar.addChildrenCell(newEntity); 
+            }
+  
             this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
         }
         
-      /*
-        var avatar = this.getAvatar(); 
-        for (var ecount = 0; ecount < 50; ecount++) {
-        //this.getMap().addEntity(Game.EntityGenerator.create('moss'),this.getMap().getRandomWalkableLocation());
-        var newEntity = Game.EntityGenerator.create('newt');
-        this.getMap().addEntity(newEntity,this.getMap().getRandomWalkableLocation());
+        /*
+          var avatar = this.getAvatar(); 
+          for (var ecount = 0; ecount < 50; ecount++) {
+          //this.getMap().addEntity(Game.EntityGenerator.create('moss'),this.getMap().getRandomWalkableLocation());
+          var newEntity = Game.EntityGenerator.create('newt');
+          this.getMap().addEntity(newEntity,this.getMap().getRandomWalkableLocation());
         avatar.addChildrenCell(newEntity); 
         }
       */
@@ -368,7 +370,7 @@ Game.UIMode.gameWin = {
   },
   exit: function () {
   },
-  render: function (display) {
+    render: function (display) {
     var fg = Game.UIMode.DEFAULT_COLOR_FG;
     var bg = Game.UIMode.DEFAULT_COLOR_BG;
     display.drawText(1,1,"You WON!!!!",fg,bg);
@@ -388,7 +390,7 @@ Game.UIMode.gameLose = {
   },
   exit: function () {
   },
-  render: function (display) {
+    render: function (display) {
     var fg = Game.UIMode.DEFAULT_COLOR_FG;
     var bg = Game.UIMode.DEFAULT_COLOR_BG;
     display.drawText(1,1,"You lost :(",fg,bg);

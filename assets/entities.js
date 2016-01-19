@@ -29,6 +29,6 @@ Game.EntityGenerator.learn({
   name: 'cell',
   chr:'#',
   fg:'#f98',
-    mixins: ["CellMove", "WalkerCorporeal", "CellStateInformation", "Killable", "CellInfect"]
+    mixins: ["CellMove", "WalkerCorporeal", "CellStateInformation", "CellInfect"]
 });
 
