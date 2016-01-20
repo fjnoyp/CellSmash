@@ -15,11 +15,33 @@ Game.CellMoveStrategies = {
 
             var sqrDist = Math.pow(difX,2) + Math.pow(difY,2); 
             
-            if( sqrDist > 120 || sqrDist < 80){
+            if( sqrDist > 60 || sqrDist < 40){
                 if(Math.abs(difX) > Math.abs(difY)){ moveDeltas.x = Game.util.clamp(difX, -1, 1); }
                 else{ moveDeltas.y = Game.util.clamp(difY, -1, 1); }
 
-                if(sqrDist < 80){
+                /*
+                if(sqrDist > 120){
+                    if( ! this.getMap().getTile( this.getX() + moveDeltas.x, this.getY() + moveDeltas.y).isWalkable() ){
+                        if(moveDeltas.y === 0){
+                            moveDeltas.x = Game.util.randomNegInt(); 
+                        }
+                        else if(moveDeltas.x === 0){
+                            moveDeltas.y = Game.util.randomNegInt(); 
+                        }
+                        else{
+                            if(Math.random() > .5){
+                                moveDeltas.x = 0; 
+                            }
+                            else{
+                                moveDeltas.y = 0; 
+                            }
+                        }
+                    }
+                }
+                */
+
+                
+                if(sqrDist < 40){
                     if(moveDeltas.x !== 0){
                         moveDeltas.x = moveDeltas.x * -1;
                     }
@@ -44,8 +66,30 @@ Game.CellMoveStrategies = {
 
             if(difX == 0){difX = Math.round( 2*Math.random() - 1 );}
             if(difY == 0){difY = Math.round( 2*Math.random() - 1 );}
-            return {x: Game.util.clamp(difX, -1, 1),
-                    y: Game.util.clamp(difY, -1, 1)}; 
+
+            var moveDeltas = {x: Game.util.clamp(difX, -1, 1),
+                              y: Game.util.clamp(difY, -1, 1)}; 
+
+            if( this.getMap().getEntity( this.getX() + moveDeltas.x, this.getY() + moveDeltas.y) ){
+
+                
+                if(moveDeltas.y === 0){
+                    moveDeltas.x = Game.util.randomNegInt(); 
+                }
+                else if(moveDeltas.x === 0){
+                    moveDeltas.y = Game.util.randomNegInt(); 
+                }
+                else{
+                    if(Math.random() > .5){
+                        moveDeltas.x = 0; 
+                    }
+                    else{
+                        moveDeltas.y = 0; 
+                    }
+                }
+        }
+
+            return moveDeltas; 
         }
     },
 
@@ -65,7 +109,33 @@ Game.CellMoveStrategies = {
             this.count %= 4; 
             return Game.CellMoveStrategies["ClumpTogether"].moves[this.count]; 
         }
-    }, 
+    },
+
+    "ClusterMove" : {
+        getMoveDeltas: function(){
+            var neighborCount = 0;
+            var ourX = this.getX();
+            var ourY = this.getY(); 
+            for(x = -1; x<2; x++){
+                for(y = -1; y<2; y++){
+                    if(x !== 0 && y !== 0){
+                        var entity = this.getMap().getEntity(ourX+x, ourY+y);
+                        if(entity && entity.hasOwnProperty("isSameCellType")){
+                            if(entity.isSameCellType(this)){
+                                neighborCount ++; 
+                            }
+                        }
+                    }
+                }
+            }
+            if(neighborCount > 1){
+                return (Game.CellMoveStrategies["ClumpTogether"].getMoveDeltas).call(this); 
+            }
+            else{
+                return (Game.CellMoveStrategies["CircleAround"].getMoveDeltas).call(this); 
+            }
+        }
+    },
 
     "MoveInDir" : {
         getMoveDeltas: function(){
@@ -171,11 +241,6 @@ Game.EntityMixin.CellMove = {
           Game.Actors.push(this);
           this.targetEntity = Game.UIMode.gamePlay.getAvatar(); 
       }, 
-      listeners: {
-          'cellChange': function(evtData) {
-              console.log("unimplemented cell change listener"); 
-          }
-      }
   },
   getMoveDeltas: function () {
     return Game.util.positionsAdjacentTo({x:0,y:0}).random();
@@ -201,14 +266,17 @@ Game.EntityMixin.CellController = {
         listeners: {
             //pass cell change event to all children cells 
             'cellChange': function(evtData) {
-
-                if(this.curMoveStrategy === Game.CellMoveStrategies["CircleAround"]){
-                    this.curMoveStrategy = Game.CellMoveStrategies["ClusterAround"]; 
+                if(evtData.keyPress === 'q'){
+                    this.curMoveStrategy = Game.CellMoveStrategies["ClusterAround"];
+                }
+                else if(evtData.keyPress === 'e'){
+                    this.curMoveStrategy = Game.CellMoveStrategies["CircleAround"];
                 }
                 else{
-                    this.curMoveStrategy = Game.CellMoveStrategies["CircleAround"]; 
+                    this.curMoveStrategy = Game.CellMoveStrategies["ClusterMove"]; 
                 }
-                
+
+                evtData = {}; 
                 evtData.moveStrategy = this.curMoveStrategy; 
 
                 this.childrenCells.forEach(
@@ -230,7 +298,7 @@ Game.EntityMixin.CellController = {
     }, 
 
     removeChildrenCell: function(cellEntity){
-        this.childrenCells.delete(cellEntity); 
+        this.childrenCells.delete(cellEntity);
     }
 };
 /*
@@ -279,7 +347,8 @@ Game.EntityMixin.CellStateInformation = {
         mixinGroup: 'Cell',
         listeners: {
             'cellChange': function(evtData){
-                this.moveStrategy = evtData.curMoveStrategy; 
+                this.setMoveStrategy(evtData.moveStrategy); 
+                //this.moveStrategy = evtData.curMoveStrategy; 
             }
         },
         init: function(template){
@@ -293,17 +362,6 @@ Game.EntityMixin.CellStateInformation = {
     getParentCell: function(){
         return this.parentCell; 
     },
-
-    setParentCell: function(parentCell){
-        if(this.parentCell !== null){
-            this.parentCell.removeChildrenCell(this); 
-        }
-        this.parentCell = parentCell;
-
-        if(parentCell !== null){
-            parentCell.addChildrenCell(this);
-        }
-    }, 
 
     setMoveStrategy: function(moveStrategy){
         if(typeof moveStrategy === 'string'){
@@ -319,7 +377,8 @@ Game.EntityMixin.CellStateInformation = {
     }, 
 
     setParentCell: function(parentCell){
-        if(this.parentCell){
+
+        if(this.parentCell !== null){
             this.parentCell.removeChildrenCell(this);
         }
         
@@ -336,7 +395,7 @@ Game.EntityMixin.CellStateInformation = {
     }, 
 
     isSameCellType: function(otherCell){
-        return otherCell.getFg() == this.getFg(); 
+        return otherCell.getParentCell() == this.getParentCell(); 
     }
 
     

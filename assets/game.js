@@ -22,18 +22,18 @@ var Game = {
   _DISPLAY_SPACING: 1.1,
   _display: {
     main: {
-      w: 80,
-      h: 24,
+      w: 50,
+      h: 50,
       o: null
     },
     avatar: {
-      w: 20,
-      h: 24,
+      w: 0,
+      h: 0,
       o: null
     },
     message: {
-      w: 100,
-      h: 6,
+      w: 0,
+      h: 0,
       o: null
     }
   },
@@ -60,7 +60,6 @@ var Game = {
     for (var display_key in this._display) {
       if (this._display.hasOwnProperty(display_key)) {
           this._display[display_key].o = new ROT.Display({width: this._display[display_key].w, height: this._display[display_key].h, spacing: Game._DISPLAY_SPACING, forceSquareRatio:true});
-          console.dir(this._display[display_key].o); 
       }
     }
     this.renderDisplayAll();
