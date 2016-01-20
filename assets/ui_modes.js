@@ -294,7 +294,13 @@ Game.UIMode.gamePlay = {
         }
 
         if(pressedKey == 'q'){
-            this.getAvatar().raiseEntityEvent('cellChange',null); 
+            this.getAvatar().raiseEntityEvent('cellChange', {keyPress:'q'});
+        }
+        else if(pressedKey == 'e'){
+            this.getAvatar().raiseEntityEvent('cellChange', {keyPress:'e'});
+        }
+        else if(pressedKey == 'r'){
+            this.getAvatar().raiseEntityEvent('cellChange', {keyPress:'r'});
         }
     }
     else if (inputType == 'keydown') {
@@ -328,9 +334,21 @@ Game.UIMode.gamePlay = {
 
         //CREATE NEW MAP       
         //ADD ENTITIES TO MAP
-        var avatar = this.getAvatar(); 
+        var avatar = this.getAvatar();
+
+        var creationFormat = {fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
+        this.createCells( creationFormat, 10 );
+
+        creationFormat = {fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
+        this.createCells( creationFormat, 10 ); 
+
+        
+        creationFormat = {fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar};
+        this.createCells( creationFormat, 25 ); 
+        
+        /*
         for(i = 0; i<100; i++){
-            var newEntity = Game.EntityGenerator.create('cell');
+
   
             if(i > 25){
                 newEntity.setAppearance('#ddd','B'); 
@@ -338,11 +356,13 @@ Game.UIMode.gamePlay = {
             }
             else{
                 newEntity.setMoveStrategy("CircleAround");
-                avatar.addChildrenCell(newEntity); 
+                newEntity.setParentCell(avatar); 
             }
   
             this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
         }
+        fg, chr, moveStrategy, parentCell, 
+*/
         
         /*
           var avatar = this.getAvatar(); 
@@ -353,9 +373,20 @@ Game.UIMode.gamePlay = {
         avatar.addChildrenCell(newEntity); 
         }
       */
+    },
+    createCells: function(creationFormat, num){
+        for(i = 0; i<num; i++){
+            var newEntity = Game.EntityGenerator.create('cell');
+            newEntity.setAppearance(creationFormat.fg, creationFormat.chr); 
+            newEntity.setMoveStrategy(creationFormat.moveStrategy);
 
-
-  },
+            if(creationFormat.hasOwnProperty("parentCell")){
+                newEntity.setParentCell(creationFormat.parentCell);
+            }
+            
+            this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
+        }
+    }, 
   toJSON: function() {
     return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
   },

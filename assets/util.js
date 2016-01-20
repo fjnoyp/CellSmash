@@ -40,5 +40,17 @@ Game.util = {
 
     clamp: function(num, min, max){
         return Math.min(Math.max(num, min), max); 
+    },
+
+    randomNegInt: function(){
+        /*
+        var rand = Math.random(); 
+        return Math.round(Math.random()) * (-1) +
+            Math.round( 1-Math.random() ); 
+        */
+
+        var rand = Math.random();
+        if(rand > .5){ return -1; }
+        else{ return 1; } 
     }
 };
