@@ -336,6 +336,9 @@ Game.UIMode.gamePlay = {
         //ADD ENTITIES TO MAP
         var avatar = this.getAvatar();
 
+        var creationFormat = {fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder"};
+        this.createCells( creationFormat, 2 );
+
         var creationFormat = {fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
         this.createCells( creationFormat, 10 );
 
