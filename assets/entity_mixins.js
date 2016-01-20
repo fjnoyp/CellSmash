@@ -141,6 +141,12 @@ Game.CellMoveStrategies = {
         getMoveDeltas: function(){
             return {x:2,y:2}; 
         }
+    },
+
+    "NoMove" : {
+        getMoveDeltas: function(){
+            return {x:0, y:0}; 
+        }
     }
 }
 
@@ -236,7 +242,19 @@ Game.EntityMixin.HitPoints = {
 Game.EntityMixin.CellMove = {
   META: {
     mixinName: 'CellMove',
-    mixinGroup: 'Cell',
+      mixinGroup: 'Cell',
+      listeners: {
+          'takeTurn': function(evtData){
+              //Move strategies , note MoveStrategy called from calling cell's scope
+              moveDeltas = (this.moveStrategy.getMoveDeltas).call(this); 
+
+              //DO WALK 
+              if (this.hasMixin('Walker')) { 
+                  this.tryWalk(this.getMap(), moveDeltas.x, moveDeltas.y);
+              }
+              
+          }
+      },
       init: function (template) {
           Game.Actors.push(this);
           this.targetEntity = Game.UIMode.gamePlay.getAvatar(); 
@@ -245,17 +263,7 @@ Game.EntityMixin.CellMove = {
   getMoveDeltas: function () {
     return Game.util.positionsAdjacentTo({x:0,y:0}).random();
   },
-    doTurn: function () {
-        
-        //Move strategies , note MoveStrategy called from calling cell's scope
-        moveDeltas = (this.moveStrategy.getMoveDeltas).call(this); 
 
-        //DO WALK 
-        if (this.hasMixin('Walker')) { 
-            this.tryWalk(this.getMap(), moveDeltas.x, moveDeltas.y);
-        }
-        this.raiseEntityEvent('actionDone');
-    }
 };
 
 //Manages children cells of cell conglomerates 
@@ -326,11 +334,15 @@ Game.EntityMixin.CellInfect = {
 
                 //infect can mean changing behavior and/or appearance of other cell, other cell can also have resistances, cellInformation will probably expose all relevant information about cell, method set to allow for this 
                 //evtData.receipient.raiseEntityEvent('infect',);
-                if(evtData.recipient.hasOwnProperty("setAppearance")){
-                    evtData.recipient.setAppearance(this.getFg(), this.getChar());
-                    evtData.recipient.setMoveStrategy(this.getMoveStrategy());
-                    evtData.recipient.setParentCell(this.getParentCell());
+                if(this.canInfect){
+                    if(evtData.recipient.hasOwnProperty("setAppearance")){
+                        if(evtData.recipient.isInfectable === true){
+                            evtData.recipient.setAppearance(this.getFg(), this.getChar());
+                            evtData.recipient.setMoveStrategy(this.getMoveStrategy());
+                            evtData.recipient.setParentCell(this.getParentCell());
 
+                        }
+                    }
                 }
 
             }
@@ -358,6 +370,8 @@ Game.EntityMixin.CellStateInformation = {
     moveStrategy: "WanderAround", 
     moveStrategy: Game.CellMoveStrategies["WanderAround"],
     parentCell: null,
+    canInfect: true, 
+    isInfectable : true, 
 
     getParentCell: function(){
         return this.parentCell; 
@@ -396,6 +410,10 @@ Game.EntityMixin.CellStateInformation = {
 
     isSameCellType: function(otherCell){
         return otherCell.getParentCell() == this.getParentCell(); 
+    },
+
+    doTurn: function(){
+        this.raiseEntityEvent('takeTurn', null); 
     }
 
     
