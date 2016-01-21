@@ -52,5 +52,55 @@ Game.util = {
         var rand = Math.random();
         if(rand > .5){ return -1; }
         else{ return 1; } 
+    },
+
+    getMooreNeighborhood: function(pos, func){
+        var ourX = pos.x; 
+        var ourY = pos.y; 
+        for(x = -1; x<2; x++){
+            for(y = -1; y<2; y++){
+                if(x != 0 || y != 0){
+                    func.call(this,ourX+x,ourY+y); 
+                }
+            }
+        }
+    }, 
+
+    getMooreNeighborhoodPos: function(pos){
+        pos = []; 
+        var ourX = pos.x; 
+        var ourY = pos.y; 
+        for(x = -1; x<2; x++){
+            for(y = -1; y<2; y++){
+                if(x != 0 || y != 0){
+                    pos.push[ {x:ourX + x, y:ourY + y } ]; 
+                }
+            }
+        }
+    },
+
+    callMethod: function(callee, argObject){
+        if(argObject.args.length === 0){
+            return callee[argObject.method].call( callee, argObject.args[0] ); 
+
+        }
+        else if(argObject.args.length === 1){
+            return callee[argObject.method].call( callee, argObject.args[0],
+                                             argObject.args[1] ); 
+        }
+        else if(argObject.args.length === 2){
+            return callee[argObject.method].call( callee, argObject.args[0],
+                                             argObject.args[1],
+                                             argObject.args[2] ); 
+        }
+        else if(argObject.args.length === 3){
+            return callee[argObject.method].call( callee, argObject.args[0],
+                                             argObject.args[1],
+                                             argObject.args[2],
+                                             argObject.args[3]
+                                           ); 
+        }
+
     }
+
 };

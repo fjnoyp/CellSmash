@@ -118,7 +118,7 @@ Game.CellMoveStrategies = {
             var ourY = this.getY(); 
             for(x = -1; x<2; x++){
                 for(y = -1; y<2; y++){
-                    if(x !== 0 && y !== 0){
+                    if( x != 0 || y != 0){
                         var entity = this.getMap().getEntity(ourX+x, ourY+y);
                         if(entity && entity.hasOwnProperty("isSameCellType")){
                             if(entity.isSameCellType(this)){
@@ -255,10 +255,6 @@ Game.EntityMixin.CellMove = {
               
           }
       },
-      init: function (template) {
-          Game.Actors.push(this);
-          this.targetEntity = Game.UIMode.gamePlay.getAvatar(); 
-      }, 
   },
   getMoveDeltas: function () {
     return Game.util.positionsAdjacentTo({x:0,y:0}).random();
@@ -336,7 +332,7 @@ Game.EntityMixin.CellInfect = {
                 //evtData.receipient.raiseEntityEvent('infect',);
                 if(this.canInfect){
                     if(evtData.recipient.hasOwnProperty("setAppearance")){
-                        if(evtData.recipient.isInfectable === true){
+                        if(evtData.recipient.getIsInfectable() == true){
                             evtData.recipient.setAppearance(this.getFg(), this.getChar());
                             evtData.recipient.setMoveStrategy(this.getMoveStrategy());
                             evtData.recipient.setParentCell(this.getParentCell());
@@ -364,7 +360,9 @@ Game.EntityMixin.CellStateInformation = {
             }
         },
         init: function(template){
-        }
+            Game.Actors.push(this);
+            this.targetEntity = Game.UIMode.gamePlay.getAvatar(); 
+        },
     },
 
     moveStrategy: "WanderAround", 
@@ -412,10 +410,94 @@ Game.EntityMixin.CellStateInformation = {
         return otherCell.getParentCell() == this.getParentCell(); 
     },
 
+    setCanInfect: function(canInfect){
+        this.canInfect = canInfect; 
+    },
+
+    getIsInfectable: function(){
+        return this.isInfectable; 
+    },
+
+    setIsInfectable: function(isInfectable){
+        this.isInfectable = isInfectable; 
+    }, 
+
     doTurn: function(){
         this.raiseEntityEvent('takeTurn', null); 
     }
 
-    
-
 };
+
+Game.EntityMixin.Growable = {
+    META: {
+        mixinName: 'Growable',
+        mixinGroup: 'Growable',
+        listeners: {
+            'takeTurn': function(evtData){
+                if(this.curTime > this.growTime){
+                    this.grow(); 
+                    this.curTime = 0; 
+                }
+                this.curTime ++; 
+            }
+        },
+    },
+    growTime: 1,
+    curTime: 0,
+    growDir: {x:0,y:1}, 
+    grow: function(x,y){
+
+        /*
+        if(Math.random() > .9){
+            this.setGrowDir(Math.random() * 2 - 1,
+                            Math.random() * 2 - 1); 
+        }
+        */
+        this.spread( this.getX() + this.growDir.x, this.getY() + this.growDir.y );
+
+        //Game.util.getMooreNeighborhood.call(this, this.getPos(), this.spread); 
+    },
+    spread: function(x,y){
+        var testObject = { method: 'copySelf', numArg: 2, args: [x, y] };
+
+        //console.log(testObject.method + " " + testObject.numArg + " " + testObject.args[0] ); 
+
+        if(!this.getMap().getEntity(x,y)){
+
+            Game.util.callMethod(this, testObject); 
+            //this[testObject.method]( testObject.args[0], testObject.args[1]); 
+            //this.copySelf(x, y); 
+        }
+        
+
+        /*
+        if(Math.random() > .8){
+            if(this.getMap().withinMapBounds( x, y) && !this.getMap().getEntity(x,y)){
+
+                //this.getMap().createCells(
+                this.copySelf({x:x, y:y} );
+            }
+        }
+        */
+    },
+    copySelf: function(x,y){
+        var newEntity = Game.EntityGenerator.create('growable');
+        newEntity.setAppearance(this.getFg(), this.getChar()); 
+        newEntity.setMoveStrategy(this.getMoveStrategy());
+        newEntity.setIsInfectable(false);
+
+        newEntity.setGrowDir(this.getGrowDir()); 
+        this.getMap().addEntity(newEntity, {x:x, y:y})
+    },
+    getGrowDir: function(){
+        console.log( this.growDir.x + " " + this.growDir.y); 
+        return this.growDir; 
+    },
+    setGrowDir: function( growDir ){
+        this.growDir = growDir; 
+    }
+}; 
+
+
+//cells move in concert as one mass normally 
+//energy system to move in concert 

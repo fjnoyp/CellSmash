@@ -337,48 +337,36 @@ Game.UIMode.gamePlay = {
         var avatar = this.getAvatar();
 
         var creationFormat = {fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
-        this.createCells( creationFormat, 10 );
+        this.createCells( creationFormat, 0 );
 
         creationFormat = {fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
-        this.createCells( creationFormat, 10 ); 
+        this.createCells( creationFormat, 2 ); 
 
         
         creationFormat = {fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar};
-        this.createCells( creationFormat, 25 ); 
-        
-        /*
-        for(i = 0; i<100; i++){
+        this.createCells( creationFormat, 1 );
 
-  
-            if(i > 25){
-                newEntity.setAppearance('#ddd','B'); 
-                newEntity.setMoveStrategy("ClumpTogether");
-            }
-            else{
-                newEntity.setMoveStrategy("CircleAround");
-                newEntity.setParentCell(avatar); 
-            }
-  
-            this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
-        }
-        fg, chr, moveStrategy, parentCell, 
-*/
+        this.createGrowable( {isInfectable : false}, 1 ); 
         
-        /*
-          var avatar = this.getAvatar(); 
-          for (var ecount = 0; ecount < 50; ecount++) {
-          //this.getMap().addEntity(Game.EntityGenerator.create('moss'),this.getMap().getRandomWalkableLocation());
-          var newEntity = Game.EntityGenerator.create('newt');
-          this.getMap().addEntity(newEntity,this.getMap().getRandomWalkableLocation());
-        avatar.addChildrenCell(newEntity); 
+    },
+    createGrowable: function(creationFormat, num){
+        for(i = 0; i<num; i++){
+            var newEntity = Game.EntityGenerator.create('growable');
+            newEntity.setIsInfectable( creationFormat.isInfectable ); 
+            
+            this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation());
+
+            
         }
-      */
     },
     createCells: function(creationFormat, num){
         for(i = 0; i<num; i++){
             var newEntity = Game.EntityGenerator.create('cell');
-            newEntity.setAppearance(creationFormat.fg, creationFormat.chr); 
-            newEntity.setMoveStrategy(creationFormat.moveStrategy);
+            newEntity.setAppearance(creationFormat.fg, creationFormat.chr);
+
+            if(creationFormat.hasOwnProperty("moveStrategy")){
+                newEntity.setMoveStrategy(creationFormat.moveStrategy);
+            }
 
             if(creationFormat.hasOwnProperty("parentCell")){
                 newEntity.setParentCell(creationFormat.parentCell);
@@ -386,6 +374,22 @@ Game.UIMode.gamePlay = {
             
             this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
         }
+    },
+    createEntity: function(pos, type, creationFormat){
+        /*
+        var newEntity = Game.EntityGenerator.create('cell');
+        newEntity.setAppearance(creationFormat.fg, creationFormat.chr);
+
+        if(creationFormat.hasOwnProperty("moveStrategy")){
+            newEntity.setMoveStrategy(creationFormat.moveStrategy);
+        }
+
+        if(creationFormat.hasOwnProperty("parentCell")){
+            newEntity.setParentCell(creationFormat.parentCell);
+        }
+        
+        this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
+        */
     }, 
   toJSON: function() {
     return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
