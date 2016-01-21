@@ -337,16 +337,18 @@ Game.UIMode.gamePlay = {
         var avatar = this.getAvatar();
 
         var creationFormat = {fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
-        this.createCells( creationFormat, 0 );
+        this.createCells( creationFormat, 10 );
 
         creationFormat = {fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
-        this.createCells( creationFormat, 2 ); 
+        this.createCells( creationFormat, 20 ); 
 
+        creationFormat = {fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder"};
+        this.createCells( creationFormat, 0 );
         
         creationFormat = {fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar};
-        this.createCells( creationFormat, 1 );
+        this.createCells( creationFormat, 60 );
 
-        this.createGrowable( {isInfectable : false}, 1 ); 
+        this.createGrowable( {isInfectable : false}, 0 ); 
         
     },
     createGrowable: function(creationFormat, num){
