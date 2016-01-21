@@ -5,6 +5,44 @@ Game.CellMoveEnum = {
 }
 
 Game.CellMoveStrategies = {
+
+    "OpportunisticMurder" : {
+        getMoveDeltas: function () {
+            var x = this.getX(), y = this.getY(); 
+
+            var neighbours = [];
+            for (var dx = -1; dx <= 1; dx++) {
+                for (var dy = -1; dy <= 1; dy++) {
+                    var en = this.getMap().getEntity(x+dx, y+dy);
+                    if (en && en.isSameCellType && !en.isSameCellType(this)) {
+                        neighbours.push({x:dx,y:dy});
+                    }
+                }
+            }
+            if (neighbours.length > 0) {
+                return neighbours.random();
+            }
+
+            var del = {x:0, y:0};
+            var tag = this.targetEntity.getPos(); 
+            var dist2 = Math.pow(tag.y-y, 2) + Math.pow(tag.x-x, 2);
+
+            x += 4*(Math.random() - Math.random());
+            y += 4*(Math.random() - Math.random());
+            var ang = Math.atan2(tag.y-y, tag.x-x);
+
+            var chg = Math.PI/2 + Math.PI/dist2 - Math.random() * Math.PI/6;
+            if (Math.sqrt(dist2) & 2) chg *= -1;
+            ang += chg;
+
+            var sin = Math.sin(ang), cos = Math.cos(ang);
+            if (Math.abs(sin) > 0.5) del.y = Math.abs(sin) / sin;
+            if (Math.abs(cos) > 0.5) del.x = Math.abs(cos) / cos;
+            return del;
+        },
+    },
+
+    
     "CircleAround" : {
         getMoveDeltas: function(){
             var targetPos = this.targetEntity.getPos(); 
@@ -51,8 +89,23 @@ Game.CellMoveStrategies = {
                 }
             }
             else{
+                var x = this.getX(), y = this.getY(); 
+                var del = {x:0, y:0};
+                var tag = this.targetEntity.getPos(); 
+                var dist2 = Math.pow(tag.y-y, 2) + Math.pow(tag.x-x, 2);
 
-                moveDeltas = this.getMoveDeltas();
+                x += 4*(Math.random() - Math.random());
+                y += 4*(Math.random() - Math.random());
+                var ang = Math.atan2(tag.y-y, tag.x-x);
+
+                var chg = Math.PI/2 + Math.PI/dist2 - Math.random() * Math.PI/6;
+                if (Math.sqrt(dist2) & 2) chg *= -1;
+                ang += chg;
+
+                var sin = Math.sin(ang), cos = Math.cos(ang);
+                if (Math.abs(sin) > 0.5) del.y = Math.abs(sin) / sin;
+                if (Math.abs(cos) > 0.5) del.x = Math.abs(cos) / cos;
+                return del;
             }
             return moveDeltas; 
         }
