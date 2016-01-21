@@ -32,3 +32,10 @@ Game.EntityGenerator.learn({
     mixins: ["CellMove", "WalkerCorporeal", "CellStateInformation", "CellInfect"]
 });
 
+Game.EntityGenerator.learn({
+  name: 'growable',
+  chr:'^',
+  fg:'#556B2F',
+    mixins: ["CellStateInformation", "Growable"]
+}); 
+

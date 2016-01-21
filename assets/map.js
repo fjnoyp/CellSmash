@@ -31,6 +31,17 @@ Game.Map.prototype.getHeight = function () {
   return this.attr._height;
 };
 
+Game.Map.prototype.withinMapBounds = function(x_or_pos, y) {
+    var useX = x_or_pos,useY=y;
+    if (typeof x_or_pos == 'object') {
+        useX = x_or_pos.x;
+        useY = x_or_pos.y;
+    }
+
+    return useX < this.getWidth() && useX >= 0 &&
+        useY < this.getHeight() && useY >= 0; 
+};
+
 Game.Map.prototype.getTile = function (x_or_pos,y) {
   var useX = x_or_pos,useY=y;
   if (typeof x_or_pos == 'object') {
