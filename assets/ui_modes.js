@@ -182,7 +182,8 @@ Game.UIMode.gamePersistence = {
     // }
     return json;
   },
-  BASE_fromJSON: function (json,state_hash_name) {
+    BASE_fromJSON: function (json,state_hash_name) {
+        console.log("base from json"); 
     var using_state_hash = 'attr';
     if (state_hash_name) {
       using_state_hash = state_hash_name;
@@ -341,31 +342,39 @@ Game.UIMode.gamePlay = {
         var avatar = this.getAvatar();
         var map = this.getMap();
 
+
+        map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover ); 
+
+
         map.createEntityRandomPos( 15, Game.creationFormats.flytrap );
         map.createEntityRandomPos( 15, Game.creationFormats.wanderer );
-        map.createEntityRandomPos( 0, Game.creationFormats.localInfector );
+        map.createEntityRandomPos( 1, Game.creationFormats.localInfector );
 
-
+              //our cells 
         Game.creationFormats.cellFollower.parentCell  = avatar;
         Game.creationFormats.cellFollower.targetEntity = avatar; 
         map.createEntityAroundPos( avatar.getPos(), 20, 20, Game.creationFormats.cellFollower );
 
 
+        //parent cell
         Game.creationFormats.cellLeader.fg = '#F345CA'; 
         var parentCell = map.createEntity(map.getRandomWalkableLocation(), Game.creationFormats.cellLeader );
 
+        //children cells
         Game.creationFormats.cellFollower.parentCell = parentCell; 
         Game.creationFormats.cellFollower.targetEntity = parentCell;
         Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg; 
         map.createEntityAroundPos( parentCell.getPos(), 50, 20, Game.creationFormats.cellFollower ); 
+
+
     },
     
-  toJSON: function() {
-    return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
-  },
-  fromJSON: function (json) {
-    Game.UIMode.gamePersistence.BASE_fromJSON.call(this,json);
-  }
+    toJSON: function() {
+        return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
+    },
+    fromJSON: function (json) {
+        Game.UIMode.gamePersistence.BASE_fromJSON.call(this,json);
+    }
 };
 
 Game.UIMode.gameWin = {
