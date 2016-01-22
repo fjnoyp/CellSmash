@@ -5,19 +5,8 @@ Game.EntityGenerator.learn({
   chr:'@',
   fg:'#dda',
     maxHp: 10,
-    //mixins: ["PlayerActor", "PlayerMessager", "WalkerCorporeal", "HitPoints", "Chronicle", "MeleeAttacker"]
     mixins: ["WalkerCorporeal","CellController"]
 });
-
-/*
-Game.EntityGenerator.learn({
-  name: 'moss',
-  chr:'%',
-  fg:'#6b6',
-  maxHp: 1,
-  mixins: ["HitPoints"]
-});
-*/
 
 Game.EntityGenerator.learn({
     name: 'marker',
