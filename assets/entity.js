@@ -8,7 +8,7 @@ Game.Entity = function(template) {
     this.attr._name = template.name || '';
     this.attr._x = template.x || 0;
     this.attr._y = template.y || 0;
-    
+
     this.attr._generator_template_key = template.generator_template_key || '';
     this.attr._mapId = null;
 
@@ -72,7 +72,7 @@ Game.Entity.prototype.raiseEntityEvent = function(evtLabel,evtData) {
 Game.Entity.prototype.destroy = function() {
     //remove from map
     this.getMap().extractEntity(this);
-    Game.Actors.delete(this); 
+    Game.Actors.delete(this);
     //remove from datastore
     Game.DATASTORE.ENTITY[this.getId()] = undefined;
 };
@@ -108,11 +108,11 @@ Game.Entity.prototype.getPos = function () {
 };
 /*
 Game.Entity.prototype.getOldPos = function() {
-    return {x:this.attr._oldX,y:this.attr._oldY}; 
+    return {x:this.attr._oldX,y:this.attr._oldY};
 };
 Game.Entity.prototype.setOldPos = function(pos){
     this.attr._oldX = pos.x;
-    this.attr._oldY = pos.y; 
+    this.attr._oldY = pos.y;
 };
 */
 Game.Entity.prototype.getX = function() {

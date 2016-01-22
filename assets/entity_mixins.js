@@ -1,11 +1,8 @@
-
-
 Game.CellMoveEnum = {
     CIRCLE_AROUND : 'circle around targetEntity position'
 }
 
 Game.CellMoveStrategies = {
-
     _circleAround: function(ourPos ,targetPos){
         var x = ourPos.x;
         var y = ourPos.y; 
@@ -26,41 +23,25 @@ Game.CellMoveStrategies = {
         return del;
     },
 
-    _moveToward: function(ourPos ,targetPos, minDist, maxDist){
-        var moveDeltas = {x:0, y:0}; 
+    _moveToward: function (ourPos, targetPos) {
+        var difX = targetPos.x - ourPos.x, absX = Math.abs(difX);
+        var difY = targetPos.y - ourPos.y, absY = Math.abs(difY);
+        var scale = Math.max(absX, absY);
 
-        var difX = targetPos.x - ourPos.x; 
-        var difY = targetPos.y - ourPos.y; 
-
-        var sqrDist = Math.pow(difX,2) + Math.pow(difY,2); 
-
-        //move toward
-        if( sqrDist > maxDist || sqrDist < minDist){
-            if(Math.abs(difX) > Math.abs(difY)){ moveDeltas.x = Game.util.clamp(difX, -1, 1); }
-            else{ moveDeltas.y = Game.util.clamp(difY, -1, 1); }
-
-            //move away 
-            if(sqrDist < minDist){
-                if(moveDeltas.x !== 0){
-                    moveDeltas.x = moveDeltas.x * -1;
-                }
-                if(moveDeltas.y !== 0){
-                    moveDeltas.y = moveDeltas.y * -1;
-                }
-            }
-        }
-
-        return moveDeltas; 
+        return {
+            x: Math.random() < absX/scale ? difX/absX : 0,
+            y: Math.random() < absY/scale ? difY/absY : 0
+        };
     },
 
-    _moveToInfect: function(pos){
+    _moveToInfect: function (pos) {
         var x = pos.x, y = pos.y;
 
         var neighbours = [];
         for (var dx = -1; dx <= 1; dx++) {
             for (var dy = -1; dy <= 1; dy++) {
                 var en = this.getMap().getEntity(x+dx, y+dy);
-                if (en && en.isSameCellType && !en.isSameCellType(this)) {
+                if (en && en.isInfectable && !en.isSameCellType(this)) {
                     neighbours.push({x:dx,y:dy});
                 }
             }
@@ -68,8 +49,7 @@ Game.CellMoveStrategies = {
         if (neighbours.length > 0) {
             return neighbours.random();
         }
-        return {x:0,y:0}; 
-
+        return {x:0,y:0};
     },
 
     "LocalMower" : {
@@ -83,21 +63,58 @@ Game.CellMoveStrategies = {
                 return Game.CellMoveStrategies._moveToward( this.getPos(), {x:30,y:30}, this.desiredDist, this.desiredDist);
             else
                 return Game.CellMoveStrategies._circleAround( this.getPos(), {x:30, y:30} ); 
-               
+            
         },
     },
 
-    "OpportunisticMurder" : {
+    "AssassinSwarm": {
         getMoveDeltas: function () {
-            var moveDeltas = Game.CellMoveStrategies._moveToInfect.call(this,this.getPos());
-            if(moveDeltas.x !== 0 && moveDeltas.y !== 0){
-                return moveDeltas; 
+            var us = this.getPos();
+            var friends = [], enemies = [];
+            
+            for (var dx = -6; dx <= 6; dx++) {
+                for (var dy = -6; dy <= 6; dy++) {
+                    var en = this.getMap().getEntity(us.x+dx, us.y+dy);
+                    if (en && en.isInfectable) {
+                        if (en.isSameCellType(this)) {
+                            friends.push(en);
+                        }
+                        else {
+                            enemies.push(en);
+                        }
+                    }
+                }
             }
-            return this.getMoveDeltas(); 
-            //return Game.CellMoveStrategies._circleAround(x,y,this.getTargetEntity().getPos());
-        },
-    },
 
+            if (friends.length > 0) {
+                this.targetEntity = friends.random().targetEntity || this.targetEntity;
+            }
+
+            if (!this.targetEntity || !this.targetEntity.isInfectable
+                || this.targetEntity.isSameCellType(this)) {
+                this.targetEntity = enemies.random();
+            }
+
+            if (!this.targetEntity) {
+                return Game.CellMoveStrategies.RandomSweep.getMoveDeltas.call(this);
+            }
+
+            var it = this.targetEntity.getPos();
+            var dx = it.x-us.x, dy = it.y-us.y;
+            if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
+                return {x:dx, y:dy};
+            }
+            else {
+                var dist = dx*dx+dy*dy;
+                if (8 < dist && dist < 40) {
+                    return Game.CellMoveStrategies._circleAround(us, it);
+                }
+                else {
+                    return Game.CellMoveStrategies._moveToward(us, it);
+                }
+            }
+        }
+    },
     
     "CircleAround" : {
         getMoveDeltas: function(){
@@ -111,106 +128,172 @@ Game.CellMoveStrategies = {
                     this.getPos(), 
                     this.getTargetEntity().getPos() ); 
             }
-            return moveDeltas; 
+            return moveDeltas;
+        },
+    },
+
+    "RandomSweep": {
+        getMoveDeltas: function () {
+            if (!this.targetPos) {
+                this.targetPos = this.getMap().getRandomWalkableLocation();
+            }
+
+            var deltas;
+            if (Math.random() < 0.8) {
+                deltas = Game.CellMoveStrategies._moveToward(
+                    this.getPos(),
+                    this.targetPos);
+            }
+            else {
+                deltas = Game.CellMoveStrategies._circleAround(
+                    this.getX(),
+                    this.getY(),
+                    this.targetPos);
+            }
+
+            if ((deltas.x === 0 && deltas.y === 0) || Math.random() < 0.01) {
+                this.targetPos = null;
+            }
+
+            return deltas;
+        }
+    },
+
+    "OpportunisticMurder" : {
+        getMoveDeltas: function () {
+            var moveDeltas = Game.CellMoveStrategies._moveToInfect.call(this,this.getPos());
+            return moveDeltas || this.getMoveDeltas();
+        },
+
+        "MurderSafely" : function () {
+            var murder = Game.CellMoveStrategies._moveToInfect.call(this, this.getPos());
+            if (murder) return murder;
+
+            var tries = 100;
+            var deltas, danger;
+            do {
+                deltas = Game.CellMoveStrategies._circleAround(
+                    this.getPos(),
+                    this.getTargetEntity().getPos() );
+                danger = Game.CellMoveStrategies._moveToInfect.call(this, {
+                    x: this.getX() + deltas.x,
+                    y: this.getY() + deltas.y,
+                });
+            } while (danger && --tries);
+            return deltas;
+        }
+    },
+
+    "CircleSafely" : {
+        getMoveDeltas: function () {
+            var tries = 100;
+            var deltas, danger;
+            do {
+                deltas = Game.CellMoveStrategies._circleAround(
+                    this.getPos(),
+                    this.getTargetEntity().getPos() );
+                danger = Game.CellMoveStrategies._moveToInfect.call(this, {
+                    x: this.getX() + deltas.x,
+                    y: this.getY() + deltas.y,
+                });
+            } while (danger && --tries);
+            return deltas;
+        }
+    },
+
+    "CircleAround" : {
+        getMoveDeltas: function () {
+            return Game.CellMoveStrategies._circleAround(
+                this.getPos(),
+                this.getTargetEntity().getPos());
         }
     },
 
     "ClusterAround" : {
-        getMoveDeltas: function(){
-
-            //Game.CellMoveStrategies._moveToward(this.getPos(), this.getTargetEntity.getPos(), 
-                                                
-
+        getMoveDeltas: function () {
             var targetPos = this.getTargetEntity().getPos();
-            var difX = targetPos.x - this.getX(); 
+            var difX = targetPos.x - this.getX();
             var difY = targetPos.y - this.getY();
 
             if(difX == 0){difX = Math.round( 2*Math.random() - 1 );}
             if(difY == 0){difY = Math.round( 2*Math.random() - 1 );}
 
             var moveDeltas = {x: Game.util.clamp(difX, -1, 1),
-                              y: Game.util.clamp(difY, -1, 1)}; 
+                              y: Game.util.clamp(difY, -1, 1)};
 
             var entity = this.getMap().getEntity( this.getX() + moveDeltas.x, this.getY() + moveDeltas.y);
             if( entity && entity.isSameCellType && entity.isSameCellType(this) ){
 
                 if(moveDeltas.y === 0){
-                    moveDeltas.x = Game.util.randomNegInt(); 
+                    moveDeltas.x = Game.util.randomNegInt();
                 }
                 else if(moveDeltas.x === 0){
-                    moveDeltas.y = Game.util.randomNegInt(); 
+                    moveDeltas.y = Game.util.randomNegInt();
                 }
                 else{
                     if(Math.random() > .5){
-                        moveDeltas.x = 0; 
+                        moveDeltas.x = 0;
                     }
                     else{
-                        moveDeltas.y = 0; 
+                        moveDeltas.y = 0;
                     }
                 }
             }
 
-            return moveDeltas; 
+            return moveDeltas;
         }
-
     },
 
     "WanderAround" : {
-        getMoveDeltas: function(){
-            return this.getMoveDeltas(); 
+        getMoveDeltas: function () {
+            return this.getMoveDeltas();
         }
-    }, 
+    },
 
     "ClumpTogether" : {
-        moves : [ {x:1,y:0}, {x:0,y:1}, {x:-1,y:0}, {x:0,y:-1} ], 
-        getMoveDeltas: function(){
-            if( !this.hasOwnProperty("count") ){
-                this.count = 0; 
-            }
-            this.count ++; 
-            this.count %= 4; 
-            return Game.CellMoveStrategies["ClumpTogether"].moves[this.count]; 
+        getMoveDeltas : function () {
+            this.count = this.count || (4*Math.random()|0);
+            this.count++;
+            var angle = this.count * Math.PI/2;
+            return {
+                x: Math.round(Math.sin(angle)),
+                y: Math.round(Math.cos(angle))
+            };
         }
     },
 
     "ClusterMove" : {
-        getMoveDeltas: function(){
+        getMoveDeltas : function () {
             var neighborCount = 0;
             var ourX = this.getX();
-            var ourY = this.getY(); 
+            var ourY = this.getY();
             for(x = -1; x<2; x++){
                 for(y = -1; y<2; y++){
                     if( x != 0 || y != 0){
                         var entity = this.getMap().getEntity(ourX+x, ourY+y);
                         if(entity && entity.hasOwnProperty("isSameCellType")){
                             if(entity.isSameCellType(this)){
-                                neighborCount ++; 
+                                neighborCount ++;
                             }
                         }
                     }
                 }
             }
-            if(neighborCount > 1){
-                return (Game.CellMoveStrategies["ClumpTogether"].getMoveDeltas).call(this); 
+            if (neighborCount > 1){
+                return Game.CellMoveStrategies["ClumpTogether"].call(this);
             }
-            else{
-                return (Game.CellMoveStrategies["CircleAround"].getMoveDeltas).call(this); 
+            else {
+                return Game.CellMoveStrategies["CircleAround"].call(this);
             }
         }
     },
 
-    "MoveInDir" : {
-        getMoveDeltas: function(){
-            return {x:2,y:2}; 
+    "NoMove": {
+        getMoveDeltas : function () {
+            return {x:0, y:0};
         }
     },
-
-    "NoMove" : {
-        getMoveDeltas: function(){
-            return {x:0, y:0}; 
-        }
-    }
-}
+};
 
 
 Game.EntityMixin = {};
@@ -218,140 +301,91 @@ Game.EntityMixin = {};
 // Mixins have a META property is is info about/for the mixin itself and then all other properties. The META property is NOT copied into objects for which this mixin is used - all other properies ARE copied in.
 
 Game.EntityMixin.WalkerCorporeal = {
-  META: {
-    mixinName: 'WalkerCorporeal',
-    mixinGroup: 'Walker'
-  },
-  tryWalk: function (map,dx,dy) {
-    var targetX = Math.min(Math.max(0,this.getX() + dx),map.getWidth()-1);
-    var targetY = Math.min(Math.max(0,this.getY() + dy),map.getHeight()-1);
-      if (map.getEntity(targetX,targetY)) { // can't walk into spaces occupied by other entities
-          
-      this.raiseEntityEvent('bumpEntity',{actor:this,recipient:map.getEntity(targetX,targetY)});
-      // NOTE: should bumping an entity always take a turn? might have to get some return data from the event (once event return data is implemented)
-      return true;
-    }
-    var targetTile = map.getTile(targetX,targetY);
-    if (targetTile.isWalkable()) {
-      // console.log('tryWalk - walkable: '+this.getName());
-      this.setPos(targetX,targetY);
-      var myMap = this.getMap();
-      if (myMap) {
-        myMap.updateEntityLocation(this);
-      }
-      return true;
-    } else {
-      this.raiseEntityEvent('walkForbidden',{target:targetTile});
-    }
-    return false;
-  }
-};
-
-Game.EntityMixin.HitPoints = {
-  META: {
-    mixinName: 'HitPoints',
-    mixinGroup: 'HitPoints',
-    stateNamespace: '_HitPoints_attr',
-    stateModel:  {
-      maxHp: 1,
-      curHp: 1
+    META: {
+        mixinName: 'WalkerCorporeal',
+        mixinGroup: 'Walker'
     },
-    init: function (template) {
-      this.attr._HitPoints_attr.maxHp = template.maxHp || 1;
-      this.attr._HitPoints_attr.curHp = template.curHp || this.attr._HitPoints_attr.maxHp;
-    },
-    listeners: {
-      'attacked': function(evtData) {
-        // console.log('HitPoints attacked');
+    tryWalk: function (map,dx,dy) {
+        var targetX = Math.min(Math.max(0,this.getX() + dx),map.getWidth()-1);
+        var targetY = Math.min(Math.max(0,this.getY() + dy),map.getHeight()-1);
+        if (map.getEntity(targetX,targetY)) { // can't walk into spaces occupied by other entities
 
-        this.takeHits(evtData.attackPower);
-        this.raiseEntityEvent('damagedBy',{damager:evtData.attacker,damageAmount:evtData.attackPower});
-        evtData.attacker.raiseEntityEvent('dealtDamage',{damagee:this,damageAmount:evtData.attackPower});
-        if (this.getCurHp() <= 0) {
-          this.raiseEntityEvent('killed',{entKilled: this, killedBy: evtData.attacker});
-          evtData.attacker.raiseEntityEvent('madeKill',{entKilled: this, killedBy: evtData.attacker});
+            this.raiseEntityEvent('bumpEntity',{actor:this,recipient:map.getEntity(targetX,targetY)});
+            // NOTE: should bumping an entity always take a turn? might have to get some return data from the event (once event return data is implemented)
+            return true;
         }
-      },
-      'killed': function(evtData) {
-        // console.log('HitPoints killed');
-        this.destroy();
-      }
+        var targetTile = map.getTile(targetX,targetY);
+        if (targetTile.isWalkable()) {
+            // console.log('tryWalk - walkable: '+this.getName());
+            this.setPos(targetX,targetY);
+            var myMap = this.getMap();
+            if (myMap) {
+                myMap.updateEntityLocation(this);
+            }
+            return true;
+        } else {
+            this.raiseEntityEvent('walkForbidden',{target:targetTile});
+        }
+        return false;
     }
-  },
-  getMaxHp: function () {
-    return this.attr._HitPoints_attr.maxHp;
-  },
-  setMaxHp: function (n) {
-    this.attr._HitPoints_attr.maxHp = n;
-  },
-  getCurHp: function () {
-    return this.attr._HitPoints_attr.curHp;
-  },
-  setCurHp: function (n) {
-    this.attr._HitPoints_attr.curHp = n;
-  },
-  takeHits: function (amt) {
-    this.attr._HitPoints_attr.curHp -= amt;
-  },
-  recoverHits: function (amt) {
-    this.attr._HitPoints_attr.curHp = Math.min(this.attr._HitPoints_attr.curHp+amt,this.attr._HitPoints_attr.maxHp);
-  }
 };
 
 //#############################################################################
 // ENTITY ACTORS / AI
 
 Game.EntityMixin.CellMove = {
-  META: {
-    mixinName: 'CellMove',
-      mixinGroup: 'Cell',
-      listeners: {
-          'takeTurn': function(evtData){
-              //Move strategies , note MoveStrategy called from calling cell's scope
-              moveDeltas = (this.moveStrategy.getMoveDeltas).call(this); 
+    META: {
+        mixinName: 'CellMove',
+        mixinGroup: 'Cell',
+        listeners: {
+            'takeTurn': function(evtData){
+                //Move strategies, note MoveStrategy called from calling cell's scope
+                moveDeltas = this.moveStrategy.getMoveDeltas.call(this);
 
-              //DO WALK 
-              if (this.hasMixin('Walker')) { 
-                  this.tryWalk(this.getMap(), moveDeltas.x, moveDeltas.y);
-              }
-              
-          }
-      },
-  },
-  getMoveDeltas: function () {
-    return Game.util.positionsAdjacentTo({x:0,y:0}).random();
-  },
+                //DO WALK
+                if (this.hasMixin('Walker')) {
+                    this.tryWalk(this.getMap(), moveDeltas.x, moveDeltas.y);
+                }
+
+            }
+        },
+    },
+    getMoveDeltas: function () {
+        return Game.util.positionsAdjacentTo({x:0,y:0}).random();
+    },
 
 };
 
-//Manages children cells of cell conglomerates 
+//Manages children cells of cell conglomerates
 Game.EntityMixin.CellController = {
     META: {
         mixinName: 'CellController',
         mixinGroup: 'Cell',
         listeners: {
-            //pass cell change event to all children cells 
+            //pass cell change event to all children cells
             'cellChange': function(evtData) {
-                console.dir( this.childrenCells ); 
-                if(evtData.keyPress === 'q'){
+                if (evtData.keyPress === 'q') {
                     this.curMoveStrategy = Game.CellMoveStrategies["ClusterAround"];
                 }
-                else if(evtData.keyPress === 'e'){
+                else if (evtData.keyPress === 'e') {
                     this.curMoveStrategy = Game.CellMoveStrategies["CircleAround"];
                 }
-                else{
-                    this.curMoveStrategy = Game.CellMoveStrategies["ClusterMove"]; 
+                else if (evtData.keyPress === 'r') {
+                    this.curMoveStrategy = Game.CellMoveStrategies["ClusterMove"];
+                }
+                else if (evtData.keyPress === 't') {
+                    this.curMoveStrategy = Game.CellMoveStrategies["NoMove"];
+                }
+                else if (evtData.keyPress === 'z') {
+                    this.curMoveStrategy = Game.CellMoveStrategies["AssassinSwarm"];
                 }
 
-                evtData = {}; 
-                evtData.moveStrategy = this.curMoveStrategy; 
+                evtData = {};
+                evtData.moveStrategy = this.curMoveStrategy;
 
-                this.childrenCells.forEach(
-                    function(value1, value2, set){
-                        value1.raiseEntityEvent('cellChange',evtData);
-                    }
-
-                );
+                this.childrenCells.forEach(function (child) {
+                    child.raiseEntityEvent('cellChange', evtData);
+                });
 
             },
         },
@@ -359,42 +393,27 @@ Game.EntityMixin.CellController = {
             this.childrenCells = new Set(); 
         },
     },
-    childrenCells: null, 
+    childrenCells: null,
     curMoveStrategy: Game.CellMoveStrategies["CircleAround"],
 
-    //WARNING NOTE EXTRA REFERENCE, POSSIBLE MEMORY LEAK WITHOUT EXPLICIT REMOVAL 
+    //WARNING NOTE EXTRA REFERENCE, POSSIBLE MEMORY LEAK WITHOUT EXPLICIT REMOVAL
     addChildrenCell: function(cellEntity){
-        this.childrenCells.add(cellEntity); 
-    }, 
+        this.childrenCells.add(cellEntity);
+    },
 
     removeChildrenCell: function(cellEntity){
         this.childrenCells.delete(cellEntity);
     }
 };
-/*
-//More complex logic pending 
-Game.EntityMixin.Killable = {
-    META: {
-        mixinName: 'Killable', 
-        mixinGroup: 'Cell',
-        listeners: {
-            'destroy': function(evtData) {
-                this.destroy();
-                this.raiseEntityEvent('destroyed'); 
-            }
-        }
-    }
-};
-*/
 
 Game.EntityMixin.CellInfect = {
     META: {
-        mixinName: 'CellInfect', 
+        mixinName: 'CellInfect',
         mixinGroup: 'Cell',
         listeners: {
             'bumpEntity': function(evtData){
 
-                //infect can mean changing behavior and/or appearance of other cell, other cell can also have resistances, cellInformation will probably expose all relevant information about cell, method set to allow for this 
+                //infect can mean changing behavior and/or appearance of other cell, other cell can also have resistances, cellInformation will probably expose all relevant information about cell, method set to allow for this
                 //evtData.receipient.raiseEntityEvent('infect',);
                 if(this.canInfect){
                     if(evtData.recipient.setAppearance && !evtData.recipient.isSameCellType(this) ){
@@ -403,7 +422,7 @@ Game.EntityMixin.CellInfect = {
                             evtData.recipient.setMoveStrategy(this.getMoveStrategy());
                             evtData.recipient.setParentCell(this.getParentCell());
 
-                            evtData.recipient.setTargetEntity(this.getTargetEntity()); 
+                            evtData.recipient.setTargetEntity(this.getTargetEntity());
                         }
                     }
                 }
@@ -411,39 +430,40 @@ Game.EntityMixin.CellInfect = {
             }
         }
     }
-    
+
 };
 
 //Individual cell memory and identification
-// !!! Should be attached to all cells !!! 
+// !!! Should be attached to all cells !!!
 Game.EntityMixin.CellStateInformation = {
     META: {
         mixinName: 'CellStateInformation',
         mixinGroup: 'Cell',
         listeners: {
             'cellChange': function(evtData){
-                this.setMoveStrategy(evtData.moveStrategy); 
-                //this.moveStrategy = evtData.curMoveStrategy; 
+                this.setTargetEntity(this.getParentCell());
+                this.setMoveStrategy(evtData.moveStrategy);
+                //this.moveStrategy = evtData.curMoveStrategy;
             }
         },
         init: function(template){
             Game.Actors.add(this);
-            //this.targetEntity = Game.UIMode.gamePlay.getAvatar(); 
+            //this.targetEntity = Game.UIMode.gamePlay.getAvatar();
         },
     },
 
-    moveStrategy: "WanderAround", 
+//    moveStrategy: "WanderAround",
     moveStrategy: Game.CellMoveStrategies["WanderAround"],
     parentCell: null,
-    canInfect: true, 
+    canInfect: true,
     isInfectable : true,
     targetEntity : null,
 
     getTargetEntity : function(){ return this.targetEntity; },
-    setTargetEntity: function(targetEntity){ this.targetEntity = targetEntity; }, 
+    setTargetEntity: function(targetEntity){ this.targetEntity = targetEntity; },
 
     getParentCell: function(){
-        return this.parentCell; 
+        return this.parentCell;
     },
 
     setMoveStrategy: function(moveStrategy){
@@ -451,51 +471,50 @@ Game.EntityMixin.CellStateInformation = {
             this.moveStrategy = Game.CellMoveStrategies[moveStrategy];
         }
         else{
-            this.moveStrategy = moveStrategy; 
+            this.moveStrategy = moveStrategy;
         }
     },
 
     getMoveStrategy: function(){
-        return this.moveStrategy; 
-    }, 
+        return this.moveStrategy;
+    },
 
     setParentCell: function(parentCell){
-
-        if(this.parentCell !== null){
+        if(this.parentCell != null){
             this.parentCell.removeChildrenCell(this);
         }
-        
+
         this.parentCell = parentCell;
-        
+
         if(parentCell){
-            parentCell.addChildrenCell(this); 
+            parentCell.addChildrenCell(this);
         }
     },
 
     setAppearance: function(fg, chr){
         this.setChar(chr);
-        this.setFg(fg); 
-    }, 
+        this.setFg(fg);
+    },
 
     isSameCellType: function(otherCell){
         //return otherCell.getParentCell() == this.getParentCell();
-        return otherCell.getFg() == this.getFg(); 
+        return otherCell.getFg() == this.getFg();
     },
 
     setCanInfect: function(canInfect){
-        this.canInfect = canInfect; 
+        this.canInfect = canInfect;
     },
 
     getIsInfectable: function(){
-        return this.isInfectable; 
+        return this.isInfectable;
     },
 
     setIsInfectable: function(isInfectable){
-        this.isInfectable = isInfectable; 
+        this.isInfectable = isInfectable;
     },
 
     doTurn: function(){
-        this.raiseEntityEvent('takeTurn', null); 
+        this.raiseEntityEvent('takeTurn', null);
     }
 
 };
@@ -512,77 +531,53 @@ Game.EntityMixin.Growable = {
                 this.curTime ++;
 
                 if(this.curTime > 300){
-                    this.destroy(); 
+                    this.destroy();
                 }
             }
         },
     },
     growTime: 200,
     curTime: 1,
-    growDir: {x:0,y:1}, 
+    growDir: {x:0,y:1},
     grow: function(x,y){
-
-        /*
-        if(Math.random() > .9){
-            this.setGrowDir(Math.random() * 2 - 1,
-                            Math.random() * 2 - 1); 
-        }
-        */
         this.spread( this.getX(), this.getY(), {x: Game.util.randomInt(-1,1), y: Game.util.randomInt(-1,1)} );
-
-        //Game.util.getMooreNeighborhood.call(this, this.getPos(), this.spread); 
     },
     spread: function(x,y, growDir){
-        /*
-          var testObject = { method: 'copySelf', numArg: 2, args: [x, y] };
-          Game.util.callMethod(this, testObject); 
-        */
 
         var growToPos = {x:x + growDir.x, y:y + growDir.y};
 
         if(!this.getMap().withinMapBounds(growToPos)){
-            return; 
+            return;
             //growToPos.x = -growToPos.x;
-            //growToPos.y = -growToPos.y; 
+            //growToPos.y = -growToPos.y;
         }
         if(!this.getMap().getEntity(growToPos)){
             var newEntity = Game.EntityGenerator.create('growable');
             newEntity.initializeValues( this.getFg(), this.getChar(), this.getMoveStrategy(),
-                                        this.getIsInfectable(), growDir ); 
-            this.getMap().addEntity(newEntity, growToPos); 
+                    this.getIsInfectable(), growDir );
+            this.getMap().addEntity(newEntity, growToPos);
         }
 
         if(Math.random() > .6){
             this.spread(x, y,
-                        {x: Game.util.randomInt(-1,1),
-                         y: Game.util.randomInt(-1,1)} ); 
+                    {x: Game.util.randomInt(-1,1),
+                        y: Game.util.randomInt(-1,1)} );
         }
-
-
-        /*
-        if(Math.random() > .8){
-            if(this.getMap().withinMapBounds( x, y) && !this.getMap().getEntity(x,y)){
-
-                //this.getMap().createCells(
-                this.copySelf({x:x, y:y} );
-            }
-        }
-        */
     },
     initializeValues: function( fg, chr, moveStrategy, isInfectable, growDir ){
         this.setAppearance(fg, chr);
         this.setMoveStrategy(moveStrategy);
         this.setIsInfectable(isInfectable);
-        this.setGrowDir(growDir); 
+        this.setGrowDir(growDir);
     },
     getGrowDir: function(){
-        return this.growDir; 
+        return this.growDir;
     },
     setGrowDir: function( growDir ){
-        this.growDir = growDir; 
+        this.growDir = growDir;
     }
-}; 
+};
 
 
-//cells move in concert as one mass normally 
-//energy system to move in concert 
+//cells move in concert as one mass normally
+//energy system to move in concert
