@@ -23,7 +23,7 @@ Game.CellMoveStrategies = {
         return del;
     },
 
-    _moveToward: function(ourPos ,targetPos, minDist, maxDist){
+    _moveToward: function (ourPos, targetPos, minDist, maxDist){
         var moveDeltas = {x:0, y:0};
 
         var difX = targetPos.x - ourPos.x;
@@ -67,6 +67,34 @@ Game.CellMoveStrategies = {
         }
         return {x:0,y:0};
 
+    },
+
+    "RandomSweep": {
+        getMoveDeltas: function () {
+            if (!this.targetPos) {
+                this.targetPos = this.getMap().getRandomWalkableLocation();
+            }
+
+            var deltas;
+            if (Math.random() < 0.8) {
+                deltas = Game.CellMoveStrategies._moveToward(
+                        this.getPos(),
+                        this.targetPos,
+                        0, 0);
+            }
+            else {
+                deltas = Game.CellMoveStrategies._circleAround(
+                        this.getX(),
+                        this.getY(),
+                        this.targetPos);
+            }
+
+            if ((deltas.x === 0 && deltas.y === 0) || Math.random() < 0.01) {
+                this.targetPos = null;
+            }
+
+            return deltas;
+        },
     },
 
     "OpportunisticMurder" : {
