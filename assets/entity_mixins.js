@@ -6,6 +6,51 @@ Game.CellMoveEnum = {
 
 Game.CellMoveStrategies = {
 
+    _circleAround: function(x,y,targetPos){
+        var del = {x:0, y:0};
+        var dist2 = Math.pow(targetPos.y-y, 2) + Math.pow(targetPos.x-x, 2);
+
+        x += 4*(Math.random() - Math.random());
+        y += 4*(Math.random() - Math.random());
+        var ang = Math.atan2(targetPos.y-y, targetPos.x-x);
+
+        var chg = Math.PI/2 + Math.PI/dist2 - Math.random() * Math.PI/6;
+        if (Math.sqrt(dist2) & 2) chg *= -1;
+        ang += chg;
+
+        var sin = Math.sin(ang), cos = Math.cos(ang);
+        if (Math.abs(sin) > 0.5) del.y = Math.abs(sin) / sin;
+        if (Math.abs(cos) > 0.5) del.x = Math.abs(cos) / cos;
+        return del;
+    },
+
+    _moveToward: function(x,y,targetPos, minDist, maxDist){
+        var moveDeltas = {x:0, y:0}; 
+
+        var difX = targetPos.x - x; 
+        var difY = targetPos.y - y; 
+
+        var sqrDist = Math.pow(difX,2) + Math.pow(difY,2); 
+
+        //move toward
+        if( sqrDist > maxDist || sqrDist < minDist){
+            if(Math.abs(difX) > Math.abs(difY)){ moveDeltas.x = Game.util.clamp(difX, -1, 1); }
+            else{ moveDeltas.y = Game.util.clamp(difY, -1, 1); }
+
+            //move away 
+            if(sqrDist < minDist){
+                if(moveDeltas.x !== 0){
+                    moveDeltas.x = moveDeltas.x * -1;
+                }
+                if(moveDeltas.y !== 0){
+                    moveDeltas.y = moveDeltas.y * -1;
+                }
+            }
+        }
+
+        return moveDeltas; 
+    }, 
+
     "OpportunisticMurder" : {
         getMoveDeltas: function () {
             var x = this.getX(), y = this.getY(); 
@@ -23,89 +68,24 @@ Game.CellMoveStrategies = {
                 return neighbours.random();
             }
 
-            var del = {x:0, y:0};
-            var tag = this.targetEntity.getPos(); 
-            var dist2 = Math.pow(tag.y-y, 2) + Math.pow(tag.x-x, 2);
-
-            x += 4*(Math.random() - Math.random());
-            y += 4*(Math.random() - Math.random());
-            var ang = Math.atan2(tag.y-y, tag.x-x);
-
-            var chg = Math.PI/2 + Math.PI/dist2 - Math.random() * Math.PI/6;
-            if (Math.sqrt(dist2) & 2) chg *= -1;
-            ang += chg;
-
-            var sin = Math.sin(ang), cos = Math.cos(ang);
-            if (Math.abs(sin) > 0.5) del.y = Math.abs(sin) / sin;
-            if (Math.abs(cos) > 0.5) del.x = Math.abs(cos) / cos;
-            return del;
+            return this.getMoveDeltas(); 
+            //return Game.CellMoveStrategies._circleAround(x,y,this.getTargetEntity().getPos());
         },
     },
 
     
     "CircleAround" : {
         getMoveDeltas: function(){
-            var targetPos = this.targetEntity.getPos(); 
-            var moveDeltas = {x:0, y:0}; 
-
-            var difX = targetPos.x - this.getX(); 
-            var difY = targetPos.y - this.getY();
-
-            var sqrDist = Math.pow(difX,2) + Math.pow(difY,2); 
-            
-            if( sqrDist > 60 || sqrDist < 40){
-                if(Math.abs(difX) > Math.abs(difY)){ moveDeltas.x = Game.util.clamp(difX, -1, 1); }
-                else{ moveDeltas.y = Game.util.clamp(difY, -1, 1); }
-
-                /*
-                if(sqrDist > 120){
-                    if( ! this.getMap().getTile( this.getX() + moveDeltas.x, this.getY() + moveDeltas.y).isWalkable() ){
-                        if(moveDeltas.y === 0){
-                            moveDeltas.x = Game.util.randomNegInt(); 
-                        }
-                        else if(moveDeltas.x === 0){
-                            moveDeltas.y = Game.util.randomNegInt(); 
-                        }
-                        else{
-                            if(Math.random() > .5){
-                                moveDeltas.x = 0; 
-                            }
-                            else{
-                                moveDeltas.y = 0; 
-                            }
-                        }
-                    }
-                }
-                */
-
-                
-                if(sqrDist < 40){
-                    if(moveDeltas.x !== 0){
-                        moveDeltas.x = moveDeltas.x * -1;
-                    }
-                    if(moveDeltas.y !== 0){
-                        moveDeltas.y = moveDeltas.y * -1;
-                    }
-                }
-            }
-            else{
-                var x = this.getX(), y = this.getY(); 
-                var del = {x:0, y:0};
-                var tag = this.targetEntity.getPos(); 
-                var dist2 = Math.pow(tag.y-y, 2) + Math.pow(tag.x-x, 2);
-
-                x += 4*(Math.random() - Math.random());
-                y += 4*(Math.random() - Math.random());
-                var ang = Math.atan2(tag.y-y, tag.x-x);
-
-                var chg = Math.PI/2 + Math.PI/dist2 - Math.random() * Math.PI/6;
-                if (Math.sqrt(dist2) & 2) chg *= -1;
-                ang += chg;
-
-                var sin = Math.sin(ang), cos = Math.cos(ang);
-                if (Math.abs(sin) > 0.5) del.y = Math.abs(sin) / sin;
-                if (Math.abs(cos) > 0.5) del.x = Math.abs(cos) / cos;
-                return del;
+            var moveDeltas = Game.CellMoveStrategies._moveToward(
+                this.getX(),
+                this.getY(),
+                this.getTargetEntity().getPos(),
+                40, 60); 
+            if(moveDeltas.x === 0 && moveDeltas.y === 0){
+                return Game.CellMoveStrategies._circleAround(
+                    this.getX(),
+                    this.getY(),
+                    this.getTargetEntity().getPos() ); 
             }
             return moveDeltas; 
         }
@@ -113,7 +93,7 @@ Game.CellMoveStrategies = {
 
     "ClusterAround" : {
         getMoveDeltas: function(){
-            var targetPos = this.targetEntity.getPos();
+            var targetPos = this.getTargetEntity().getPos();
             var difX = targetPos.x - this.getX(); 
             var difY = targetPos.y - this.getY();
 
@@ -390,6 +370,7 @@ Game.EntityMixin.CellInfect = {
                             evtData.recipient.setMoveStrategy(this.getMoveStrategy());
                             evtData.recipient.setParentCell(this.getParentCell());
 
+                            evtData.recipient.setTargetEntity(this.getTargetEntity()); 
                         }
                     }
                 }
@@ -414,7 +395,7 @@ Game.EntityMixin.CellStateInformation = {
         },
         init: function(template){
             Game.Actors.push(this);
-            this.targetEntity = Game.UIMode.gamePlay.getAvatar(); 
+            //this.targetEntity = Game.UIMode.gamePlay.getAvatar(); 
         },
     },
 
@@ -422,7 +403,11 @@ Game.EntityMixin.CellStateInformation = {
     moveStrategy: Game.CellMoveStrategies["WanderAround"],
     parentCell: null,
     canInfect: true, 
-    isInfectable : true, 
+    isInfectable : true,
+    targetEntity : null,
+
+    getTargetEntity : function(){ return this.targetEntity; },
+    setTargetEntity: function(targetEntity){ this.targetEntity = targetEntity; }, 
 
     getParentCell: function(){
         return this.parentCell; 
