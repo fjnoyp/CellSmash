@@ -33,7 +33,7 @@ Game.UIMode.gamePersistence = {
   RANDOM_SEED_KEY: 'gameRandomSeed',
   enter: function () {
       Game.refresh();
-      //Game.TimeEngine.start(); 
+      //Game.TimeEngine.start();
     //console.log('game persistence');
   },
   exit: function () {
@@ -285,49 +285,45 @@ Game.UIMode.gamePlay = {
         Game.switchUiMode(Game.UIMode.gameWin);
         return;
       }
+        
+      switch (pressedKey) {
+        case "w":
+          this.moveAvatar(0,-1);
+          break;
+        case "a":
+          this.moveAvatar(-1,0);
+          break;
+        case "s":
+          this.moveAvatar(0,1);
+          break;
+        case "d":
+          this.moveAvatar(1,0);
+          break;
+        case "q":
+        case "e":
+        case "r":
+        case "t":
+        case "z":
+          this.getAvatar().raiseEntityEvent("cellChange", {keyPress: pressedKey});
+          break;
 
-        console.log("here"); 
-
-        if(pressedKey == 'w'){
-            this.moveAvatar(0,-1); 
-        }
-        if(pressedKey == 'a'){
-            this.moveAvatar(-1,0); 
-        }
-        if(pressedKey == 's'){
-            this.moveAvatar(0,1); 
-        }
-        if(pressedKey == 'd'){
-            this.moveAvatar(1,0); 
-        }
-
-        if(pressedKey == 'q'){
-            this.getAvatar().raiseEntityEvent('cellChange', {keyPress:'q'});
-        }
-        else if(pressedKey == 'e'){
-            this.getAvatar().raiseEntityEvent('cellChange', {keyPress:'e'});
-        }
-        else if(pressedKey == 'r'){
-            this.getAvatar().raiseEntityEvent('cellChange', {keyPress:'r'});
-        }
-    }
-    else if (inputType == 'keydown') {
-      // console.log('gameStart inputType:');
-      // console.dir(inputType);
-      // console.log('gameStart inputData:');
-      // console.dir(inputData);
-      if (inputData.keyCode == 27) { // 'Escape'
-        Game.switchUiMode(Game.UIMode.gameLose);
+        default:
+          if (inputType == 'keydown') {
+            if (inputData.keyCode == 27) { // 'Escape'
+              Game.switchUiMode(Game.UIMode.gameLose);
+            }
+            else if (inputData.keyCode == 187) { // '='
+              Game.switchUiMode(Game.UIMode.gamePersistence);
+            }
+          }
+          break;
       }
-      else if (inputData.keyCode == 187) { // '='
-        Game.switchUiMode(Game.UIMode.gamePersistence);
-      }
-    }
 
-    if (tookTurn) {
-      this.getAvatar().raiseEntityEvent('actionDone');
-      Game.Message.ageMessages();
-      return true;
+      if (tookTurn) {
+        this.getAvatar().raiseEntityEvent('actionDone');
+        Game.Message.ageMessages();
+        return true;
+      }
     }
   },
     setupNewGame: function () {
@@ -342,15 +338,19 @@ Game.UIMode.gamePlay = {
         var avatar = this.getAvatar();
         var map = this.getMap();
 
+        var creationFormat = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "AssassinSwarm", targetEntity : avatar };
+        map.createEntityAroundPos(map.getRandomWalkableLocation(), 3, 5, creationFormat );
+
+        creationFormat = {entityType: 'cellController', fg : '#D8BFD8', chr : '@', moveStrategy : "RandomSweep", setIsInfectable : false};
+        map.createEntityAroundPos(map.getRandomWalkableLocation(), 3, 5, creationFormat); 
+
 
         map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover ); 
-
-
         map.createEntityRandomPos( 15, Game.creationFormats.flytrap );
         map.createEntityRandomPos( 15, Game.creationFormats.wanderer );
         map.createEntityRandomPos( 1, Game.creationFormats.localInfector );
 
-              //our cells 
+        //our cells 
         Game.creationFormats.cellFollower.parentCell  = avatar;
         Game.creationFormats.cellFollower.targetEntity = avatar; 
         map.createEntityAroundPos( avatar.getPos(), 20, 20, Game.creationFormats.cellFollower );
@@ -368,13 +368,12 @@ Game.UIMode.gamePlay = {
 
 
     },
-    
-    toJSON: function() {
-        return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
-    },
-    fromJSON: function (json) {
-        Game.UIMode.gamePersistence.BASE_fromJSON.call(this,json);
-    }
+  toJSON: function() {
+    return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
+  },
+  fromJSON: function (json) {
+    Game.UIMode.gamePersistence.BASE_fromJSON.call(this,json);
+  }
 };
 
 Game.UIMode.gameWin = {
