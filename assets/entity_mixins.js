@@ -1,5 +1,3 @@
-
-
 Game.CellMoveEnum = {
     CIRCLE_AROUND : 'circle around targetEntity position'
 }
@@ -334,6 +332,9 @@ Game.EntityMixin.CellController = {
                 }
                 else if (evtData.keyPress === 'r') {
                     this.curMoveStrategy = Game.CellMoveStrategies["ClusterMove"];
+                }
+                else if (evtData.keyPress === 't') {
+                    this.curMoveStrategy = Game.CellMoveStrategies["NoMove"];
                 }
                 else if (evtData.keyPress === 'z') {
                     this.curMoveStrategy = Game.CellMoveStrategies["AssassinSwarm"];
