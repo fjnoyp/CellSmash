@@ -218,7 +218,8 @@ Game.CellMoveStrategies = {
     },
 
     "ClumpTogether" : function () {
-        this.count = ((this.count || 0) + 1) % 4;
+        this.count = this.count || (4*Math.random()|0);
+        this.count++;
         var angle = this.count * Math.PI/2;
         return {
             x: Math.round(Math.sin(angle)),
