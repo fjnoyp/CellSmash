@@ -337,16 +337,20 @@ Game.UIMode.gamePlay = {
         var avatar = this.getAvatar();
 
         var creationFormat = {fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
-        this.createCells( creationFormat, 10 );
+        this.createCells( creationFormat, 30 );
 
         creationFormat = {fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
-        this.createCells( creationFormat, 20 ); 
+        this.createCells( creationFormat, 30 ); 
 
-        creationFormat = {fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder"};
-        this.createCells( creationFormat, 0 );
+        creationFormat = {fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
+        this.createCells( creationFormat, 30 );
+
+        creationFormat = {fg : '#FF69B4', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
+        this.createCells( creationFormat, 30 );
+
         
-        creationFormat = {fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar};
-        this.createCells( creationFormat, 60 );
+        creationFormat = {fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar, targetEntity : avatar };
+        this.createCells( creationFormat, 25 );
 
         this.createGrowable( {isInfectable : false}, 0 ); 
         
@@ -372,6 +376,10 @@ Game.UIMode.gamePlay = {
 
             if(creationFormat.hasOwnProperty("parentCell")){
                 newEntity.setParentCell(creationFormat.parentCell);
+            }
+
+            if(creationFormat.targetEntity){
+                newEntity.setTargetEntity( creationFormat.targetEntity );
             }
             
             this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
