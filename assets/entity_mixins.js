@@ -68,7 +68,18 @@ Game.CellMoveStrategies = {
         }
         return {x:0,y:0}; 
 
-    }, 
+    },
+
+    "LocalMower" : {
+        getMoveDeltas: function () {
+            if(!this.desiredDist) this.desiredDist = 60;
+            else if(this.desiredDist === 0) this.desiredDist = 60; 
+
+            
+            this.desiredDist --;
+            return Game.CellMoveStrategies._moveToward( this.getPos, {x:30,y:30}, desiredDist, desiredDist); 
+        },
+    },
 
     "OpportunisticMurder" : {
         getMoveDeltas: function () {
@@ -339,12 +350,9 @@ Game.EntityMixin.CellController = {
 
             },
         },
-                    init: function(template){
-                this.childrenCells = new Set(); 
-            },
-
-        
-        
+        init: function(template){
+            this.childrenCells = new Set(); 
+        },
     },
     childrenCells: null, 
     curMoveStrategy: Game.CellMoveStrategies["CircleAround"],

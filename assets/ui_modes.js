@@ -66,7 +66,8 @@ Game.UIMode.gamePersistence = {
       }
     }
   },
-  saveGame: function () {
+    saveGame: function () {
+        /*
     if (this.localStorageAvailable()) {
       Game.DATASTORE.GAME_PLAY = Game.UIMode.gamePlay.attr;
       Game.DATASTORE.MESSAGES = Game.Message.attr;
@@ -82,8 +83,10 @@ Game.UIMode.gamePersistence = {
       window.localStorage.setItem(Game._PERSISTANCE_NAMESPACE, JSON.stringify(Game.DATASTORE));
       Game.switchUiMode(Game.UIMode.gamePlay);
     }
+        */
   },
-  restoreGame: function () {
+    restoreGame: function () {
+        /*
     if (this.localStorageAvailable()) {
       var json_state_data = window.localStorage.getItem(Game._PERSISTANCE_NAMESPACE);
       var state_data = JSON.parse(json_state_data);
@@ -107,6 +110,7 @@ Game.UIMode.gamePersistence = {
       }
 
       ROT.RNG.getUniform(); // once the map is regenerated cycle the RNG so we're getting new data for entity generation
+
 
       // entities
       for (var entityId in state_data.ENTITY) {
@@ -136,7 +140,8 @@ Game.UIMode.gamePersistence = {
 
       Game.switchUiMode(Game.UIMode.gamePlay);
     }
-  },
+        */
+    },
   newGame: function () {
     Game.DATASTORE = {};
     Game.DATASTORE.MAP = {};
@@ -280,6 +285,8 @@ Game.UIMode.gamePlay = {
         return;
       }
 
+        console.log("here"); 
+
         if(pressedKey == 'w'){
             this.moveAvatar(0,-1); 
         }
@@ -329,92 +336,30 @@ Game.UIMode.gamePlay = {
         this.getMap().addEntity(this.getAvatar(),this.getMap().getRandomWalkableLocation());
         this.setCameraToAvatar();
 
-        
-
-
         //CREATE NEW MAP       
         //ADD ENTITIES TO MAP
         var avatar = this.getAvatar();
-        var map = this.getMap(); 
+        var map = this.getMap();
 
-        var creationFormat = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
-        console.dir(map); 
-        map.createEntityRandomPos( 2, creationFormat );
-
-        creationFormat = {entityType: 'cell', fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
-        map.createEntityRandomPos( 2, creationFormat ); 
-
-        creationFormat = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
-        map.createEntityRandomPos( 0, creationFormat );
-
-        creationFormat = {entityType: 'cell', fg : '#FF69B4', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
-        map.createEntityRandomPos( 0, creationFormat );
+        map.createEntityRandomPos( 15, Game.creationFormats.flytrap );
+        map.createEntityRandomPos( 15, Game.creationFormats.wanderer );
+        map.createEntityRandomPos( 0, Game.creationFormats.localInfector );
 
 
-        creationFormat = {entityType: 'cellController', fg : '#D8BFD8', chr : '@', moveStrategy : "WanderAround", setIsInfectable : false};
-        var parentCell = map.createEntity(map.getRandomWalkableLocation(), creationFormat);
+        Game.creationFormats.cellFollower.parentCell  = avatar;
+        Game.creationFormats.cellFollower.targetEntity = avatar; 
+        map.createEntityAroundPos( avatar.getPos(), 20, 20, Game.creationFormats.cellFollower );
 
-        creationFormat = {entityType: 'cell', fg : '#D8BFD8', chr : '#', moveStrategy : "CircleAround", parentCell : parentCell, targetEntity : parentCell };
-        map.createEntityAroundPos( parentCell.getPos(), 50, 10, creationFormat); 
-        
-        
-        creationFormat = {entityType: 'cell', fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar, targetEntity : avatar };
-        map.createEntityAroundPos( avatar.getPos(), 20, 10, creationFormat);
 
-        //map.createEntityRandomPos( 100, {entityType: 'growable', setIsInfectable : false} ); 
-        
+        Game.creationFormats.cellLeader.fg = '#F345CA'; 
+        var parentCell = map.createEntity(map.getRandomWalkableLocation(), Game.creationFormats.cellLeader );
+
+        Game.creationFormats.cellFollower.parentCell = parentCell; 
+        Game.creationFormats.cellFollower.targetEntity = parentCell;
+        Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg; 
+        map.createEntityAroundPos( parentCell.getPos(), 50, 20, Game.creationFormats.cellFollower ); 
     },
-
-
-    createGrowable: function(creationFormat, num){
-        for(i = 0; i<num; i++){
-            var newEntity = Game.EntityGenerator.create('growable');
-            newEntity.setIsInfectable( creationFormat.isInfectable ); 
-            
-            this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation());
-
-            
-        }
-    },
-    /*
-    createCellsAtPos: function(creationFormat, positions){
-
-    }, 
-    createCells: function(creationFormat, num){
-        for(i = 0; i<num; i++){
-            var newEntity = Game.EntityGenerator.create('cell');
-            newEntity.setAppearance(creationFormat.fg, creationFormat.chr);
-
-            if(creationFormat.hasOwnProperty("moveStrategy")){
-                newEntity.setMoveStrategy(creationFormat.moveStrategy);
-            }
-
-            if(creationFormat.hasOwnProperty("parentCell")){
-                newEntity.setParentCell(creationFormat.parentCell);
-            }
-
-            if(creationFormat.targetEntity){
-                newEntity.setTargetEntity( creationFormat.targetEntity );
-            }
-            
-            this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
-        }
-    },
-    createEntity: function(pos, type, creationFormat){
-        var newEntity = Game.EntityGenerator.create('cell');
-        newEntity.setAppearance(creationFormat.fg, creationFormat.chr);
-
-        if(creationFormat.hasOwnProperty("moveStrategy")){
-            newEntity.setMoveStrategy(creationFormat.moveStrategy);
-        }
-
-        if(creationFormat.hasOwnProperty("parentCell")){
-            newEntity.setParentCell(creationFormat.parentCell);
-        }
-        
-        this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
-        },
-    */
+    
   toJSON: function() {
     return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
   },
