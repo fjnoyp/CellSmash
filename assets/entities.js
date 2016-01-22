@@ -46,3 +46,18 @@ Game.EntityGenerator.learn({
     mixins: ["CellStateInformation", "Growable"]
 }); 
 
+
+
+Game.creationFormats = {};
+Game.creationFormats.flytrap = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
+Game.creationFormats.wanderer = {entityType: 'cell', fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
+
+Game.creationFormats.localInfector = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder"};
+
+Game.creationFormats.test = {entityType: 'cellController', fg : '#D8BFD8', chr : '@', moveStrategy : "WanderAround", setIsInfectable : false};
+
+Game.creationFormats.cellFollower = {entityType: 'cell', fg : '#66FF33', chr : '#', moveStrategy : "CircleAround"};
+
+Game.creationFormats.cellLeader = {entityType: 'cellController', fg : '#66FF33', chr : '@', moveStrategy : "WanderAround", setIsInfectable : false};
+    
+    
