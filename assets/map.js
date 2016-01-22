@@ -186,3 +186,38 @@ Game.Map.prototype.toJSON = function () {
 Game.Map.prototype.fromJSON = function (json) {
   Game.UIMode.gamePersistence.BASE_fromJSON.call(this,json);
 };
+
+Game.Map.prototype.createEntity = function(pos, creationFormat) {
+    var newEntity = Game.EntityGenerator.create(creationFormat.entityType);
+    
+    newEntity.setAppearance(creationFormat.fg, creationFormat.chr);
+
+    if(creationFormat.moveStrategy){
+        newEntity.setMoveStrategy(creationFormat.moveStrategy);
+    }
+
+    if(creationFormat.parentCell){
+        newEntity.setParentCell(creationFormat.parentCell);
+    }
+
+    if(creationFormat.targetEntity){
+        newEntity.setTargetEntity( creationFormat.targetEntity );
+    }
+
+    this.addEntity(newEntity, pos); 
+};
+
+Game.Map.prototype.createEntityRandomPos = function(num, creationFormat){
+    for(i = 0; i<num; i++){
+        this.createEntity( this.getRandomWalkableLocation(), creationFormat ); 
+    }
+};
+
+Game.Map.createEntityAroundPos = function(pos, radius, num, creationFormat){
+    for(i = 0; i<num; i++){
+        var newPos; 
+        newPos.x = Math.round( pos.x + (Math.random() - Math.random()) * radius ); 
+        newPos.y = Math.round( pos.y + (Math.random() - Math.random()) * radius );
+        this.createEntity( newPos, creationFormat); 
+    }
+};

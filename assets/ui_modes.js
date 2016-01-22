@@ -335,26 +335,30 @@ Game.UIMode.gamePlay = {
         //CREATE NEW MAP       
         //ADD ENTITIES TO MAP
         var avatar = this.getAvatar();
+        var map = this.getMap(); 
 
-        var creationFormat = {fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
-        this.createCells( creationFormat, 3 );
+        var creationFormat = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
+        console.dir(map); 
+        map.createEntityRandomPos( 3, creationFormat );
 
-        creationFormat = {fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
-        this.createCells( creationFormat, 3 ); 
+        creationFormat = {entityType: 'cell', fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
+        map.createEntityRandomPos( 3, creationFormat ); 
 
-        creationFormat = {fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
-        this.createCells( creationFormat, 3 );
+        creationFormat = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
+        map.createEntityRandomPos( 3, creationFormat );
 
-        creationFormat = {fg : '#FF69B4', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
-        this.createCells( creationFormat, 3 );
+        creationFormat = {entityType: 'cell', fg : '#FF69B4', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
+        map.createEntityRandomPos( 3, creationFormat );
 
         
-        creationFormat = {fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar, targetEntity : avatar };
-        this.createCells( creationFormat, 2 );
+        creationFormat = {entityType: 'cell', fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar, targetEntity : avatar };
+        map.createEntityRandomPos( creationFormat, 2 );
 
-        this.createGrowable( {isInfectable : false}, 2 ); 
+        //this.createGrowable( {isInfectable : false}, 2 ); 
         
     },
+
+    /*
     createGrowable: function(creationFormat, num){
         for(i = 0; i<num; i++){
             var newEntity = Game.EntityGenerator.create('growable');
@@ -365,6 +369,9 @@ Game.UIMode.gamePlay = {
             
         }
     },
+    createCellsAtPos: function(creationFormat, positions){
+
+    }, 
     createCells: function(creationFormat, num){
         for(i = 0; i<num; i++){
             var newEntity = Game.EntityGenerator.create('cell');
@@ -386,7 +393,6 @@ Game.UIMode.gamePlay = {
         }
     },
     createEntity: function(pos, type, creationFormat){
-        /*
         var newEntity = Game.EntityGenerator.create('cell');
         newEntity.setAppearance(creationFormat.fg, creationFormat.chr);
 
@@ -399,8 +405,8 @@ Game.UIMode.gamePlay = {
         }
         
         this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
-        */
-    }, 
+        },
+    */
   toJSON: function() {
     return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
   },
