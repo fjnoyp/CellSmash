@@ -352,7 +352,9 @@ Game.UIMode.gamePlay = {
 
         
         creationFormat = {entityType: 'cell', fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar, targetEntity : avatar };
-        map.createEntityRandomPos( creationFormat, 2 );
+        map.createEntityAroundPos( avatar.getPos(), 10, creationFormat, 20 );
+
+        map.createEntityRandomPos( 10, {entityType: 'growable'} ); 
 
         //this.createGrowable( {isInfectable : false}, 2 ); 
         
