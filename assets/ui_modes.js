@@ -346,10 +346,10 @@ Game.UIMode.gamePlay = {
         map.createEntityRandomPos( 0, creationFormat );
 
 
-        creationFormat = {entityType: 'cellController', fg : '#D8BFD8', chr : '@', moveStrategy : "WanderAround", setIsInfectable : false};
+        creationFormat = {entityType: 'cellController', fg : '#D8BFD8', chr : '@', moveStrategy : "RandomSweep", setIsInfectable : false};
         var parentCell = map.createEntity(map.getRandomWalkableLocation(), creationFormat);
 
-        creationFormat = {entityType: 'cell', fg : '#D8BFD8', chr : '#', moveStrategy : "CircleSafely", parentCell : parentCell, targetEntity : parentCell };
+        creationFormat = {entityType: 'cell', fg : '#D8BFD8', chr : '#', moveStrategy : "CircleAround", parentCell : parentCell, targetEntity : parentCell };
         map.createEntityAroundPos( parentCell.getPos(), 50, 10, creationFormat);
 
 
