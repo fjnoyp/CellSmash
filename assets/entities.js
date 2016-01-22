@@ -22,20 +22,27 @@ Game.EntityGenerator.learn({
 Game.EntityGenerator.learn({
     name: 'marker',
     chr:'*',
-    fg:'#f98'
+    fg:'#ffff00'
 }); 
 
 Game.EntityGenerator.learn({
   name: 'cell',
   chr:'#',
-  fg:'#f98',
+  fg:'#ffff00',
     mixins: ["CellMove", "WalkerCorporeal", "CellStateInformation", "CellInfect"]
+});
+
+Game.EntityGenerator.learn({
+  name: 'cellController',
+  chr:'@',
+  fg:'#ffff00',
+    mixins: ["WalkerCorporeal", "CellMove", "CellStateInformation", "CellController"]
 });
 
 Game.EntityGenerator.learn({
   name: 'growable',
   chr:'^',
-  fg:'#556B2F',
+  fg:'#ffff00',
     mixins: ["CellStateInformation", "Growable"]
 }); 
 
