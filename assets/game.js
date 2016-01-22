@@ -86,7 +86,7 @@ var Game = {
         Game.Scheduler = new ROT.Scheduler.Simple(); 
         Game.TimeEngine = new ROT.Engine(Game.Scheduler);
 
-        Game.Actors = [];
+        Game.Actors = new Set(); 
         //Game.Scheduler.SetDuration(1000); 
 
         Game.step = 0; 
@@ -99,17 +99,19 @@ var Game = {
 
                 //animate all actors every n time
                 if(Game.step >= 1){
-                    for(i=0; i<Game.Actors.length; i++){
-                        Game.Actors[i].doTurn(); 
-                    }
+                    Game.Actors.forEach(
+                        function(value1, value2, set){
+                            value1.doTurn(); 
+                        }
+                    );
                     Game.step = .25; 
                 }
                 else{
                     Game.step += .25;                
                 }
                 Game.refresh(); 
-
-                setTimeout(function(){ done(); }, 50);
+                
+                setTimeout(function(){ done(); }, 25);
 
 
                 /*
