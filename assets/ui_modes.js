@@ -336,7 +336,9 @@ Game.UIMode.gamePlay = {
         var map = this.getMap();
 
         var creationFormat = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
-        map.createEntityRandomPos( 25, creationFormat );
+        for (var i = 0; i < 5; i++) {
+          map.createEntityAroundPos(map.getRandomWalkableLocation(), 5, 5, creationFormat );
+        }
 
         creationFormat = {entityType: 'cell', fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
         map.createEntityRandomPos( 2, creationFormat );
