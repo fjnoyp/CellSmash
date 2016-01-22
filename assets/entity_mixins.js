@@ -6,7 +6,9 @@ Game.CellMoveEnum = {
 
 Game.CellMoveStrategies = {
 
-    _circleAround: function(x,y,targetPos){
+    _circleAround: function(ourPos ,targetPos){
+        var x = ourPos.x;
+        var y = ourPos.y; 
         var del = {x:0, y:0};
         var dist2 = Math.pow(targetPos.y-y, 2) + Math.pow(targetPos.x-x, 2);
 
@@ -72,12 +74,16 @@ Game.CellMoveStrategies = {
 
     "LocalMower" : {
         getMoveDeltas: function () {
-            if(!this.desiredDist) this.desiredDist = 60;
-            else if(this.desiredDist === 0) this.desiredDist = 60; 
+            if(!this.desiredDist) this.desiredDist = 120;
+            else if(this.desiredDist === 0) this.desiredDist = 120; 
 
-            
-            this.desiredDist --;
-            return Game.CellMoveStrategies._moveToward( this.getPos, {x:30,y:30}, desiredDist, desiredDist); 
+            this.desiredDist -= 3;
+
+            if(this.desiredDist % 2 == 0)
+                return Game.CellMoveStrategies._moveToward( this.getPos(), {x:30,y:30}, this.desiredDist, this.desiredDist);
+            else
+                return Game.CellMoveStrategies._circleAround( this.getPos(), {x:30, y:30} ); 
+               
         },
     },
 
@@ -102,8 +108,7 @@ Game.CellMoveStrategies = {
                 40, 60); 
             if(moveDeltas.x === 0 && moveDeltas.y === 0){
                 return Game.CellMoveStrategies._circleAround(
-                    this.getX(),
-                    this.getY(),
+                    this.getPos(), 
                     this.getTargetEntity().getPos() ); 
             }
             return moveDeltas; 
