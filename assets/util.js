@@ -36,44 +36,38 @@ Game.util = {
       }
     }
     return adjPos;
-  }, 
+  },
 
     clamp: function(num, min, max){
-        return Math.min(Math.max(num, min), max); 
+        return Math.min(Math.max(num, min), max);
     },
 
     randomNegInt: function(){
-        /*
-        var rand = Math.random(); 
-        return Math.round(Math.random()) * (-1) +
-            Math.round( 1-Math.random() ); 
-        */
-
         var rand = Math.random();
         if(rand > .5){ return -1; }
-        else{ return 1; } 
+        else{ return 1; }
     },
 
     getMooreNeighborhood: function(pos, func){
-        var ourX = pos.x; 
-        var ourY = pos.y; 
+        var ourX = pos.x;
+        var ourY = pos.y;
         for(x = -1; x<2; x++){
             for(y = -1; y<2; y++){
                 if(x != 0 || y != 0){
-                    func.call(this,ourX+x,ourY+y); 
+                    func.call(this,ourX+x,ourY+y);
                 }
             }
         }
-    }, 
+    },
 
     getMooreNeighborhoodPos: function(pos){
-        pos = []; 
-        var ourX = pos.x; 
-        var ourY = pos.y; 
+        pos = [];
+        var ourX = pos.x;
+        var ourY = pos.y;
         for(x = -1; x<2; x++){
             for(y = -1; y<2; y++){
                 if(x != 0 || y != 0){
-                    pos.push[ {x:ourX + x, y:ourY + y } ]; 
+                    pos.push[ {x:ourX + x, y:ourY + y } ];
                 }
             }
         }
@@ -81,24 +75,24 @@ Game.util = {
 
     callMethod: function(callee, argObject){
         if(argObject.args.length === 0){
-            return callee[argObject.method].call( callee, argObject.args[0] ); 
+            return callee[argObject.method].call( callee, argObject.args[0] );
 
         }
         else if(argObject.args.length === 1){
             return callee[argObject.method].call( callee, argObject.args[0],
-                                             argObject.args[1] ); 
+                                             argObject.args[1] );
         }
         else if(argObject.args.length === 2){
             return callee[argObject.method].call( callee, argObject.args[0],
                                              argObject.args[1],
-                                             argObject.args[2] ); 
+                                             argObject.args[2] );
         }
         else if(argObject.args.length === 3){
             return callee[argObject.method].call( callee, argObject.args[0],
                                              argObject.args[1],
                                              argObject.args[2],
                                              argObject.args[3]
-                                           ); 
+                                           );
         }
 
     }

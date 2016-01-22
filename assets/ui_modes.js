@@ -33,7 +33,7 @@ Game.UIMode.gamePersistence = {
   RANDOM_SEED_KEY: 'gameRandomSeed',
   enter: function () {
       Game.refresh();
-      //Game.TimeEngine.start(); 
+      //Game.TimeEngine.start();
     //console.log('game persistence');
   },
   exit: function () {
@@ -280,46 +280,42 @@ Game.UIMode.gamePlay = {
         return;
       }
 
-        if(pressedKey == 'w'){
-            this.moveAvatar(0,-1); 
-        }
-        if(pressedKey == 'a'){
-            this.moveAvatar(-1,0); 
-        }
-        if(pressedKey == 's'){
-            this.moveAvatar(0,1); 
-        }
-        if(pressedKey == 'd'){
-            this.moveAvatar(1,0); 
-        }
+      switch (pressedKey) {
+        case "w":
+          this.moveAvatar(0,-1);
+          break;
+        case "a":
+          this.moveAvatar(-1,0);
+          break;
+        case "s":
+          this.moveAvatar(0,1);
+          break;
+        case "d":
+          this.moveAvatar(1,0);
+          break;
+        case "q":
+        case "e":
+        case "r":
+          this.getAvatar().raiseEntityEvent("cellChange", {keyPress: pressedKey});
+          break;
 
-        if(pressedKey == 'q'){
-            this.getAvatar().raiseEntityEvent('cellChange', {keyPress:'q'});
-        }
-        else if(pressedKey == 'e'){
-            this.getAvatar().raiseEntityEvent('cellChange', {keyPress:'e'});
-        }
-        else if(pressedKey == 'r'){
-            this.getAvatar().raiseEntityEvent('cellChange', {keyPress:'r'});
-        }
-    }
-    else if (inputType == 'keydown') {
-      // console.log('gameStart inputType:');
-      // console.dir(inputType);
-      // console.log('gameStart inputData:');
-      // console.dir(inputData);
-      if (inputData.keyCode == 27) { // 'Escape'
-        Game.switchUiMode(Game.UIMode.gameLose);
+        default:
+          if (inputType == 'keydown') {
+            if (inputData.keyCode == 27) { // 'Escape'
+              Game.switchUiMode(Game.UIMode.gameLose);
+            }
+            else if (inputData.keyCode == 187) { // '='
+              Game.switchUiMode(Game.UIMode.gamePersistence);
+            }
+          }
+          break;
       }
-      else if (inputData.keyCode == 187) { // '='
-        Game.switchUiMode(Game.UIMode.gamePersistence);
-      }
-    }
 
-    if (tookTurn) {
-      this.getAvatar().raiseEntityEvent('actionDone');
-      Game.Message.ageMessages();
-      return true;
+      if (tookTurn) {
+        this.getAvatar().raiseEntityEvent('actionDone');
+        Game.Message.ageMessages();
+        return true;
+      }
     }
   },
     setupNewGame: function () {
@@ -329,19 +325,19 @@ Game.UIMode.gamePlay = {
         this.getMap().addEntity(this.getAvatar(),this.getMap().getRandomWalkableLocation());
         this.setCameraToAvatar();
 
-        
 
 
-        //CREATE NEW MAP       
+
+        //CREATE NEW MAP
         //ADD ENTITIES TO MAP
         var avatar = this.getAvatar();
-        var map = this.getMap(); 
+        var map = this.getMap();
 
         var creationFormat = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
         map.createEntityRandomPos( 25, creationFormat );
 
         creationFormat = {entityType: 'cell', fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
-        map.createEntityRandomPos( 2, creationFormat ); 
+        map.createEntityRandomPos( 2, creationFormat );
 
         creationFormat = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
         map.createEntityRandomPos( 0, creationFormat );
@@ -354,31 +350,31 @@ Game.UIMode.gamePlay = {
         var parentCell = map.createEntity(map.getRandomWalkableLocation(), creationFormat);
 
         creationFormat = {entityType: 'cell', fg : '#D8BFD8', chr : '#', moveStrategy : "CircleSafely", parentCell : parentCell, targetEntity : parentCell };
-        map.createEntityAroundPos( parentCell.getPos(), 50, 10, creationFormat); 
-        
-        
+        map.createEntityAroundPos( parentCell.getPos(), 50, 10, creationFormat);
+
+
         creationFormat = {entityType: 'cell', fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar, targetEntity : avatar };
         map.createEntityAroundPos( avatar.getPos(), 20, 10, creationFormat);
 
-        //map.createEntityRandomPos( 100, {entityType: 'growable', setIsInfectable : false} ); 
-        
+        //map.createEntityRandomPos( 100, {entityType: 'growable', setIsInfectable : false} );
+
     },
 
 
     createGrowable: function(creationFormat, num){
         for(i = 0; i<num; i++){
             var newEntity = Game.EntityGenerator.create('growable');
-            newEntity.setIsInfectable( creationFormat.isInfectable ); 
-            
+            newEntity.setIsInfectable( creationFormat.isInfectable );
+
             this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation());
 
-            
+
         }
     },
     /*
     createCellsAtPos: function(creationFormat, positions){
 
-    }, 
+    },
     createCells: function(creationFormat, num){
         for(i = 0; i<num; i++){
             var newEntity = Game.EntityGenerator.create('cell');
@@ -395,8 +391,8 @@ Game.UIMode.gamePlay = {
             if(creationFormat.targetEntity){
                 newEntity.setTargetEntity( creationFormat.targetEntity );
             }
-            
-            this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
+
+            this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation());
         }
     },
     createEntity: function(pos, type, creationFormat){
@@ -410,8 +406,8 @@ Game.UIMode.gamePlay = {
         if(creationFormat.hasOwnProperty("parentCell")){
             newEntity.setParentCell(creationFormat.parentCell);
         }
-        
-        this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation()); 
+
+        this.getMap().addEntity(newEntity, this.getMap().getRandomWalkableLocation());
         },
     */
   toJSON: function() {

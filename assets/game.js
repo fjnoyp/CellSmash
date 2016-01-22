@@ -47,7 +47,7 @@ var Game = {
 
   Scheduler: null,
     TimeEngine: null,
-    Actors: null, //list of all actors 
+    Actors: null, //list of all actors
 
   init: function() {
     this._game = this;
@@ -83,13 +83,13 @@ var Game = {
 
     initializeTimingEngine: function () {
         // NOTE: single, central timing system for now - might have to refactor this later to deal with mutliple map stuff
-        Game.Scheduler = new ROT.Scheduler.Simple(); 
+        Game.Scheduler = new ROT.Scheduler.Simple();
         Game.TimeEngine = new ROT.Engine(Game.Scheduler);
 
-        Game.Actors = new Set(); 
-        //Game.Scheduler.SetDuration(1000); 
+        Game.Actors = new Set();
+        //Game.Scheduler.SetDuration(1000);
 
-        Game.step = 0; 
+        Game.step = 0;
 
         var timeBlock = {
             act: function(){
@@ -101,16 +101,16 @@ var Game = {
                 if(Game.step >= 1){
                     Game.Actors.forEach(
                         function(value1, value2, set){
-                            value1.doTurn(); 
+                            value1.doTurn();
                         }
                     );
-                    Game.step = .25; 
+                    Game.step = .25;
                 }
                 else{
-                    Game.step += .25;                
+                    Game.step += .25;
                 }
-                Game.refresh(); 
-                
+                Game.refresh();
+
                 setTimeout(function(){ done(); }, 25);
 
 
@@ -125,10 +125,10 @@ var Game = {
                 return promise;
             }
         }
-        console.log("intilaizeing timing engine"); 
+        console.log("intilaizeing timing engine");
         Game.Scheduler.add(timeBlock,true);
 
-        Game.TimeEngine.start(); 
+        Game.TimeEngine.start();
 
     },
 
