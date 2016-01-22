@@ -72,6 +72,7 @@ Game.Entity.prototype.raiseEntityEvent = function(evtLabel,evtData) {
 Game.Entity.prototype.destroy = function() {
     //remove from map
     this.getMap().extractEntity(this);
+    Game.Actors.delete(this); 
     //remove from datastore
     Game.DATASTORE.ENTITY[this.getId()] = undefined;
 };

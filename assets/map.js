@@ -167,6 +167,18 @@ Game.Map.prototype.renderOn = function (display,camX,camY) {
     }
 };
 
+/*
+Game.Map.createEntity = function(x,y, entityName, initMethodCalls){
+    var newEntity = Game.EntityGenerator.craete(entityName);
+    for( i = 0; i<initMethodCalls.length; i++){
+        Game.util.callMethod(newEntity,
+                             initMethodCalls[i]); 
+    }
+    this.getMap().addEntity(newEntity, {x:x,y:y}); 
+    return newEntity; 
+};
+*/
+
 Game.Map.prototype.toJSON = function () {
   var json = Game.UIMode.gamePersistence.BASE_toJSON.call(this);
   return json;
