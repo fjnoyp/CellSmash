@@ -5,7 +5,8 @@ Game.CellMoveEnum = {
 }
 
 Game.CellMoveStrategies = {
-    _circleAround: function(x,y,targetPos){
+    _circleAround: function(pos,targetPos){
+        var x = pos.x, y = pos.y;
         var del = {x:0, y:0};
         var dist2 = Math.pow(targetPos.y-y, 2) + Math.pow(targetPos.x-x, 2);
 
@@ -57,7 +58,7 @@ Game.CellMoveStrategies = {
         for (var dx = -1; dx <= 1; dx++) {
             for (var dy = -1; dy <= 1; dy++) {
                 var en = this.getMap().getEntity(x+dx, y+dy);
-                if (en && en.isSameCellType && !en.isSameCellType(this)) {
+                if (en && en.isInfectable && !en.isSameCellType(this)) {
                     neighbours.push({x:dx,y:dy});
                 }
             }
@@ -67,6 +68,50 @@ Game.CellMoveStrategies = {
         }
         return {x:0,y:0};
 
+    },
+
+    "AssassinSwarm": {
+        getMoveDeltas: function () {
+            var us = this.getPos();
+            var friends = [], enemies = [];
+
+            for (var dx = -3; dx <= 3; dx++) {
+                for (var dy = -3; dy <= 3; dy++) {
+                    var en = this.getMap().getEntity(us.x+dx, us.y+dy);
+                    if (en && en.isInfectable) {
+                        (en.isSameCellType(this) ? friends : enemies).push(en);
+                    }
+                }
+            }
+
+            if (friends.length > 0) {
+                this.targetEntity = friends.random().targetEntity || this.targetEntity;
+            }
+
+            if (!this.targetEntity || !this.targetEntity.isInfectable
+                    || this.targetEntity.isSameCellType(this)) {
+                this.targetEntity = enemies.random();
+            }
+
+            if (!this.targetEntity) {
+                return Game.CellMoveStrategies.RandomSweep.getMoveDeltas.call(this);
+            }
+
+            var it = this.targetEntity.getPos();
+            var dx = it.x-us.x, dy = it.y-us.y;
+            if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
+                return {x:dx, y:dy};
+            }
+            else {
+                var dist = dx*dx+dy*dy;
+                if (8 < dist && dist < 40) {
+                    return Game.CellMoveStrategies._circleAround(us, it);
+                }
+                else {
+                    return Game.CellMoveStrategies._moveToward(us, it, 4, 8);
+                }
+            }
+        }
     },
 
     "RandomSweep": {
@@ -120,8 +165,7 @@ Game.CellMoveStrategies = {
             var deltas, danger;
             do {
                 deltas = Game.CellMoveStrategies._circleAround(
-                        this.getX(),
-                        this.getY(),
+                        this.getPos(),
                         this.getTargetEntity().getPos() );
                 danger = Game.CellMoveStrategies._moveToInfect.call(this, {
                     x: this.getX() + deltas.x,
@@ -138,8 +182,7 @@ Game.CellMoveStrategies = {
             var deltas, danger;
             do {
                 deltas = Game.CellMoveStrategies._circleAround(
-                        this.getX(),
-                        this.getY(),
+                        this.getPos(),
                         this.getTargetEntity().getPos() );
                 danger = Game.CellMoveStrategies._moveToInfect.call(this, {
                     x: this.getX() + deltas.x,
@@ -153,14 +196,12 @@ Game.CellMoveStrategies = {
     "CircleAround" : {
         getMoveDeltas: function(){
             var moveDeltas = Game.CellMoveStrategies._moveToward(
-                    this.getX(),
-                    this.getY(),
+                    this.getPos(),
                     this.getTargetEntity().getPos(),
                     40, 60);
             if(moveDeltas.x === 0 && moveDeltas.y === 0){
                 return Game.CellMoveStrategies._circleAround(
-                        this.getX(),
-                        this.getY(),
+                        this.getPos(),
                         this.getTargetEntity().getPos() );
             }
             return moveDeltas;
@@ -169,10 +210,6 @@ Game.CellMoveStrategies = {
 
     "ClusterAround" : {
         getMoveDeltas: function(){
-
-            //Game.CellMoveStrategies._moveToward(this.getPos(), this.getTargetEntity.getPos(),
-
-
             var targetPos = this.getTargetEntity().getPos();
             var difX = targetPos.x - this.getX();
             var difY = targetPos.y - this.getY();
@@ -384,25 +421,25 @@ Game.EntityMixin.CellController = {
         listeners: {
             //pass cell change event to all children cells
             'cellChange': function(evtData) {
-                if(evtData.keyPress === 'q'){
+                if (evtData.keyPress === 'q') {
                     this.curMoveStrategy = Game.CellMoveStrategies["ClusterAround"];
                 }
-                else if(evtData.keyPress === 'e'){
-                    this.curMoveStrategy = Game.CellMoveStrategies["MurderSafely"];
+                else if (evtData.keyPress === 'e') {
+                    this.curMoveStrategy = Game.CellMoveStrategies["CircleAround"];
                 }
-                else{
+                else if (evtData.keyPress === 'r') {
                     this.curMoveStrategy = Game.CellMoveStrategies["ClusterMove"];
+                }
+                else if (evtData.keyPress === 'z') {
+                    this.curMoveStrategy = Game.CellMoveStrategies["AssassinSwarm"];
                 }
 
                 evtData = {};
                 evtData.moveStrategy = this.curMoveStrategy;
 
-                this.childrenCells.forEach(
-                        function(value1, value2, set){
-                            value1.raiseEntityEvent('cellChange',evtData);
-                        }
-
-                        );
+                this.childrenCells.forEach(function (child) {
+                    child.raiseEntityEvent('cellChange', evtData);
+                });
 
             },
         },
@@ -458,6 +495,7 @@ Game.EntityMixin.CellStateInformation = {
         mixinGroup: 'Cell',
         listeners: {
             'cellChange': function(evtData){
+                this.setTargetEntity(this.getParentCell());
                 this.setMoveStrategy(evtData.moveStrategy);
                 //this.moveStrategy = evtData.curMoveStrategy;
             }
@@ -496,8 +534,7 @@ Game.EntityMixin.CellStateInformation = {
     },
 
     setParentCell: function(parentCell){
-
-        if(this.parentCell !== null){
+        if(this.parentCell != null){
             this.parentCell.removeChildrenCell(this);
         }
 
