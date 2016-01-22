@@ -339,28 +339,26 @@ Game.UIMode.gamePlay = {
 
         var creationFormat = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
         console.dir(map); 
-        map.createEntityRandomPos( 3, creationFormat );
+        map.createEntityRandomPos( 25, creationFormat );
 
         creationFormat = {entityType: 'cell', fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
-        map.createEntityRandomPos( 3, creationFormat ); 
+        map.createEntityRandomPos( 25, creationFormat ); 
 
         creationFormat = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
-        map.createEntityRandomPos( 3, creationFormat );
+        map.createEntityRandomPos( 1, creationFormat );
 
         creationFormat = {entityType: 'cell', fg : '#FF69B4', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
-        map.createEntityRandomPos( 3, creationFormat );
+        map.createEntityRandomPos( 1, creationFormat );
 
         
         creationFormat = {entityType: 'cell', fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar, targetEntity : avatar };
         map.createEntityAroundPos( avatar.getPos(), 10, creationFormat, 20 );
 
-        map.createEntityRandomPos( 10, {entityType: 'growable'} ); 
-
-        //this.createGrowable( {isInfectable : false}, 2 ); 
+        //map.createEntityRandomPos( 100, {entityType: 'growable', setIsInfectable : false} ); 
         
     },
 
-    /*
+
     createGrowable: function(creationFormat, num){
         for(i = 0; i<num; i++){
             var newEntity = Game.EntityGenerator.create('growable');
@@ -371,6 +369,7 @@ Game.UIMode.gamePlay = {
             
         }
     },
+    /*
     createCellsAtPos: function(creationFormat, positions){
 
     }, 

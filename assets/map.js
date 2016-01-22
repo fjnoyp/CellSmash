@@ -189,8 +189,10 @@ Game.Map.prototype.fromJSON = function (json) {
 
 Game.Map.prototype.createEntity = function(pos, creationFormat) {
     var newEntity = Game.EntityGenerator.create(creationFormat.entityType);
-    
-    newEntity.setAppearance(creationFormat.fg, creationFormat.chr);
+
+    if(creationFormat.fg && creationFormat.chr){
+        newEntity.setAppearance(creationFormat.fg, creationFormat.chr);
+    }
 
     if(creationFormat.moveStrategy){
         newEntity.setMoveStrategy(creationFormat.moveStrategy);
@@ -204,7 +206,7 @@ Game.Map.prototype.createEntity = function(pos, creationFormat) {
         newEntity.setTargetEntity( creationFormat.targetEntity );
     }
 
-    if(creationFormat.setIsInfectable){
+    if(creationFormat.hasOwnProperty('setIsInfectable')){
         newEntity.setIsInfectable( creationFormat.setIsInfectable ); 
     }
     
