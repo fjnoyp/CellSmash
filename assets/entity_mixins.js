@@ -377,7 +377,7 @@ Game.EntityMixin.CellInfect = {
                 //infect can mean changing behavior and/or appearance of other cell, other cell can also have resistances, cellInformation will probably expose all relevant information about cell, method set to allow for this 
                 //evtData.receipient.raiseEntityEvent('infect',);
                 if(this.canInfect){
-                    if(evtData.recipient.hasOwnProperty("setAppearance")){
+                    if(evtData.recipient.setAppearance && !evtData.recipient.isSameCellType(this) ){
                         if(evtData.recipient.getIsInfectable() == true){
                             evtData.recipient.setAppearance(this.getFg(), this.getChar());
                             evtData.recipient.setMoveStrategy(this.getMoveStrategy());
@@ -458,7 +458,8 @@ Game.EntityMixin.CellStateInformation = {
     }, 
 
     isSameCellType: function(otherCell){
-        return otherCell.getParentCell() == this.getParentCell(); 
+        //return otherCell.getParentCell() == this.getParentCell();
+        return otherCell.getFg() == this.getFg(); 
     },
 
     setCanInfect: function(canInfect){
@@ -490,13 +491,13 @@ Game.EntityMixin.Growable = {
                 }
                 this.curTime ++;
 
-                if(this.curTime > 3){
+                if(this.curTime > 300){
                     this.destroy(); 
                 }
             }
         },
     },
-    growTime: 2,
+    growTime: 200,
     curTime: 1,
     growDir: {x:0,y:1}, 
     grow: function(x,y){
