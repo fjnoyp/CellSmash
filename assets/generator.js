@@ -9,7 +9,6 @@ Game.Generator = function(genName,constructorFunction, defaultTemplate) {
 Game.Generator.prototype.learn = function (template,createKeyName) {
   if (! template.name) {
     console.log("generator "+this._name+" can't learn a template that has no name attribute:");
-    console.dir(template);
     return false;
   }
   createKeyName = createKeyName || template.name;

@@ -81,6 +81,23 @@ Game.CellMoveStrategies = {
         },
     },
 
+    "CircleSafely" : {
+      getMoveDeltas: function () {
+        var tries = 100;
+        var deltas, danger;
+        do {
+          deltas = Game.CellMoveStrategies._circleAround(
+              this.getX(),
+              this.getY(),
+              this.getTargetEntity().getPos() ); 
+          danger = Game.CellMoveStrategies._moveToInfect.call(this, {
+            x: this.getX() + deltas.x,
+            y: this.getY() + deltas.y,
+          });
+        } while ((danger.x !== 0 || danger.y !== 0) && --tries);
+        return deltas;
+      }
+    },
     
     "CircleAround" : {
         getMoveDeltas: function(){
