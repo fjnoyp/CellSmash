@@ -337,24 +337,24 @@ Game.UIMode.gamePlay = {
 
         var creationFormat = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
         for (var i = 0; i < 5; i++) {
-          map.createEntityAroundPos(map.getRandomWalkableLocation(), 5, 5, creationFormat );
+          //map.createEntityAroundPos(map.getRandomWalkableLocation(), 5, 5, creationFormat );
         }
 
         creationFormat = {entityType: 'cell', fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
-        map.createEntityRandomPos( 2, creationFormat );
+        //map.createEntityRandomPos( 2, creationFormat );
 
-        creationFormat = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "AssassinSwarm", targetEntity : avatar };
-        map.createEntityAroundPos(map.getRandomWalkableLocation(), 3, 5, creationFormat );
+        //creationFormat = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "AssassinSwarm", targetEntity : avatar };
+        //map.createEntityAroundPos(map.getRandomWalkableLocation(), 3, 5, creationFormat );
 
-        creationFormat = {entityType: 'cell', fg : '#FF69B4', chr : ';', moveStrategy : "OpportunisticMurder", targetEntity : avatar };
-        map.createEntityRandomPos( 0, creationFormat );
+        creationFormat = {entityType: 'cell', fg : '#FF69B4', chr : ';', moveStrategy : "PoliteSocialMurder", targetEntity : avatar };
+        map.createEntityAroundPos(map.getRandomWalkableLocation(), 10, 2, creationFormat );
 
 
         creationFormat = {entityType: 'cellController', fg : '#D8BFD8', chr : '@', moveStrategy : "RandomSweep", setIsInfectable : false};
-        var parentCell = map.createEntity(map.getRandomWalkableLocation(), creationFormat);
+        //var parentCell = map.createEntity(map.getRandomWalkableLocation(), creationFormat);
 
-        creationFormat = {entityType: 'cell', fg : '#D8BFD8', chr : '#', moveStrategy : "CircleAround", parentCell : parentCell, targetEntity : parentCell };
-        map.createEntityAroundPos( parentCell.getPos(), 20, 10, creationFormat);
+        //creationFormat = {entityType: 'cell', fg : '#D8BFD8', chr : '#', moveStrategy : "CircleAround", parentCell : parentCell, targetEntity : parentCell };
+        //map.createEntityAroundPos( parentCell.getPos(), 20, 10, creationFormat);
 
 
         creationFormat = {entityType: 'cell', fg : '#66FF33', chr : '#', moveStrategy : "CircleAround", parentCell : avatar, targetEntity : avatar };

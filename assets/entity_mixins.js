@@ -49,7 +49,106 @@ Game.CellMoveStrategies = {
             return neighbours.random();
         }
 
-        return {x:0,y:0};
+        return null;
+    },
+
+    "PoliteSocialMurder": function () {
+        var us = this.getPos();
+
+        var friends = [], enemies = [];
+        for (var dx = -1; dx <= 1; dx++) {
+            for (var dy = -1; dy <= 1; dy++) {
+                var en = this.getMap().getEntity(us.x+dx, us.y+dy);
+                if (en && en.isInfectable) {
+                    if (en.isSameCellType(this)) {
+                        friends.push(en);
+                    }
+                    else {
+                        enemies.push({x: dx, y: dy});
+                    }
+                }
+            }
+        }
+
+        if (!this.targetEntity || !this.targetEntity.isInfectable
+                || !this.targetEntity.isSameCellType(this)) {
+            this.targetEntity = friends.random();
+        }
+
+        if (friends.length == 1 && enemies.length > 0 || enemies.length == 1) {
+            return enemies.random();
+        }
+
+        if (this.targetEntity) {
+            var toward = Game.CellMoveStrategies._moveToward(us, this.targetEntity.getPos());
+            if (!this.getMap().getEntity(us.x+toward.x, us.y+toward.y)) {
+                return toward;
+            }
+        }
+
+        return Game.CellMoveStrategies.RandomSweep.call(this);
+    },
+
+    "SocialMurder": function () {
+        var us = this.getPos();
+
+        var friends = [], enemies = [];
+        for (var dx = -1; dx <= 1; dx++) {
+            for (var dy = -1; dy <= 1; dy++) {
+                var en = this.getMap().getEntity(us.x+dx, us.y+dy);
+                if (en && en.isInfectable) {
+                    if (en.isSameCellType(this)) {
+                        friends.push(en);
+                    }
+                    else {
+                        enemies.push({x: dx, y: dy});
+                    }
+                }
+            }
+        }
+
+        if (!this.targetEntity || !this.targetEntity.isInfectable
+                || !this.targetEntity.isSameCellType(this)) {
+            this.targetEntity = friends.random();
+        }
+
+        if (friends.length >= enemies.length+2 && enemies.length > 0) {
+            return enemies.random();
+        }
+
+        if (this.targetEntity) {
+            var toward = Game.CellMoveStrategies._moveToward(us, this.targetEntity.getPos());
+            if (!this.getMap().getEntity(us.x+toward.x, us.y+toward.y)) {
+                return toward;
+            }
+        }
+
+        return Game.CellMoveStrategies.RandomSweep.call(this);
+    },
+
+    "AsocialMurder": function () {
+        var us = this.getPos();
+
+        var friends = 0, enemies = [];
+        for (var dx = -1; dx <= 1; dx++) {
+            for (var dy = -1; dy <= 1; dy++) {
+                var en = this.getMap().getEntity(us.x+dx, us.y+dy);
+                if (en && en.isInfectable) {
+                    if (en.isSameCellType(this)) {
+                        friends++;
+                    }
+                    else {
+                        enemies.push({x: dx, y: dy});
+                    }
+                }
+            }
+        }
+
+        if (friends < enemies.length) {
+            return enemies.random();
+        }
+
+        return Game.CellMoveStrategies.RandomSweep.call(this);
     },
 
     "AssassinSwarm": function () {
