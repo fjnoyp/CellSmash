@@ -316,6 +316,7 @@ Game.EntityMixin.CellController = {
         listeners: {
             //pass cell change event to all children cells 
             'cellChange': function(evtData) {
+                console.dir( this.childrenCells ); 
                 if(evtData.keyPress === 'q'){
                     this.curMoveStrategy = Game.CellMoveStrategies["ClusterAround"];
                 }
@@ -337,9 +338,15 @@ Game.EntityMixin.CellController = {
                 );
 
             },
-        }
+        },
+                    init: function(template){
+                this.childrenCells = new Set(); 
+            },
+
+        
+        
     },
-    childrenCells: new Set(),
+    childrenCells: null, 
     curMoveStrategy: Game.CellMoveStrategies["CircleAround"],
 
     //WARNING NOTE EXTRA REFERENCE, POSSIBLE MEMORY LEAK WITHOUT EXPLICIT REMOVAL 

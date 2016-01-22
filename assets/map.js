@@ -210,7 +210,8 @@ Game.Map.prototype.createEntity = function(pos, creationFormat) {
         newEntity.setIsInfectable( creationFormat.setIsInfectable ); 
     }
     
-    this.addEntity(newEntity, pos); 
+    this.addEntity(newEntity, pos);
+    return newEntity; 
 };
 
 Game.Map.prototype.createEntityRandomPos = function(num, creationFormat){
@@ -219,7 +220,7 @@ Game.Map.prototype.createEntityRandomPos = function(num, creationFormat){
     }
 };
 
-Game.Map.prototype.createEntityAroundPos = function(pos, radius, creationFormat, num){
+Game.Map.prototype.createEntityAroundPos = function(pos, num, radius, creationFormat){
     for(i = 0; i<num; i++){
         var newPos = {}; 
         newPos.x = Math.round( pos.x + (Math.random() - Math.random()) * radius ); 
