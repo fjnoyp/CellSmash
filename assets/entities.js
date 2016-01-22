@@ -23,7 +23,7 @@ Game.EntityGenerator.learn({
     name: 'marker',
     chr:'*',
     fg:'#ffff00'
-}); 
+});
 
 Game.EntityGenerator.learn({
   name: 'cell',
@@ -44,5 +44,5 @@ Game.EntityGenerator.learn({
   chr:'^',
   fg:'#ffff00',
     mixins: ["CellStateInformation", "Growable"]
-}); 
+});
 

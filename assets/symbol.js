@@ -11,11 +11,11 @@ Game.Symbol.prototype.getChar = function () {
 };
 
 Game.Symbol.prototype.setChar = function (chr) {
-    this.attr._char = chr; 
+    this.attr._char = chr;
 };
 
 Game.Symbol.prototype.setFg = function(fg){
-    this.attr._fg = fg; 
+    this.attr._fg = fg;
 }
 
 Game.Symbol.prototype.getFg = function () {
