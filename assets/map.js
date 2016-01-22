@@ -204,6 +204,10 @@ Game.Map.prototype.createEntity = function(pos, creationFormat) {
         newEntity.setTargetEntity( creationFormat.targetEntity );
     }
 
+    if(creationFormat.setIsInfectable){
+        newEntity.setIsInfectable( creationFormat.setIsInfectable ); 
+    }
+    
     this.addEntity(newEntity, pos); 
 };
 
@@ -213,11 +217,13 @@ Game.Map.prototype.createEntityRandomPos = function(num, creationFormat){
     }
 };
 
-Game.Map.createEntityAroundPos = function(pos, radius, num, creationFormat){
+Game.Map.prototype.createEntityAroundPos = function(pos, radius, creationFormat, num){
     for(i = 0; i<num; i++){
-        var newPos; 
+        var newPos = {}; 
         newPos.x = Math.round( pos.x + (Math.random() - Math.random()) * radius ); 
         newPos.y = Math.round( pos.y + (Math.random() - Math.random()) * radius );
-        this.createEntity( newPos, creationFormat); 
+        if(this.withinMapBounds(newPos) && !this.getEntity(newPos)){
+            this.createEntity( newPos, creationFormat);
+        }
     }
 };
