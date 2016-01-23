@@ -22,8 +22,8 @@ var Game = {
   _DISPLAY_SPACING: 1.1,
   _display: {
     main: {
-      w: 50,
-      h: 50,
+      w: 75,
+      h: 75,
       o: null
     },
     avatar: {
