@@ -23,6 +23,32 @@ Game.CellMoveStrategies = {
         return del;
     },
 
+    _moveToDist: function(ourPos, targetPos, minDist, maxDist){
+        var moveDeltas = {x:0, y:0}; 
+
+        var difX = targetPos.x - ourPos.x; 
+        var difY = targetPos.y - ourPos.y; 
+
+        var sqrDist = Math.pow(difX,2) + Math.pow(difY,2); 
+
+        //move toward
+        if( sqrDist > maxDist || sqrDist < minDist){
+            if(Math.abs(difX) > Math.abs(difY)){ moveDeltas.x = Game.util.clamp(difX, -1, 1); }
+            else{ moveDeltas.y = Game.util.clamp(difY, -1, 1); }
+
+            //move away 
+            if(sqrDist < minDist){
+                if(moveDeltas.x !== 0){
+                    moveDeltas.x = moveDeltas.x * -1;
+                }
+                if(moveDeltas.y !== 0){
+                    moveDeltas.y = moveDeltas.y * -1;
+                }
+            }
+        }
+        return moveDeltas; 
+    },
+
     _moveToward: function (ourPos, targetPos) {
         var difX = targetPos.x - ourPos.x, absX = Math.abs(difX);
         var difY = targetPos.y - ourPos.y, absY = Math.abs(difY);
@@ -54,13 +80,13 @@ Game.CellMoveStrategies = {
 
     "LocalMower" : {
         getMoveDeltas: function () {
-            if(!this.desiredDist) this.desiredDist = 120;
-            else if(this.desiredDist === 0) this.desiredDist = 120; 
+            if(!this.desiredDist) this.desiredDist = 240; 
+            else if(this.desiredDist === 0) this.desiredDist = 240; 
 
             this.desiredDist -= 3;
 
             if(this.desiredDist % 2 == 0)
-                return Game.CellMoveStrategies._moveToward( this.getPos(), {x:30,y:30}, this.desiredDist, this.desiredDist);
+                return Game.CellMoveStrategies._moveToDist( this.getPos(), {x:30,y:30}, this.desiredDist, this.desiredDist);
             else
                 return Game.CellMoveStrategies._circleAround( this.getPos(), {x:30, y:30} ); 
             
