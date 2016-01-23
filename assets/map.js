@@ -231,4 +231,4 @@ Game.Map.prototype.createEntityAroundPos = function(pos, num, radius, creationFo
     }
 };
 
-//Game.Map.prototype.createCell = function(fg, chr, num, pos, 
+//Game.Map.prototype.createCell = function(fg, chr, num, pos,
