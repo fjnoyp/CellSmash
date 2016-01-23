@@ -183,7 +183,7 @@ Game.UIMode.gamePersistence = {
     return json;
   },
     BASE_fromJSON: function (json,state_hash_name) {
-        console.log("base from json"); 
+        console.log("base from json");
     var using_state_hash = 'attr';
     if (state_hash_name) {
       using_state_hash = state_hash_name;
@@ -285,7 +285,7 @@ Game.UIMode.gamePlay = {
         Game.switchUiMode(Game.UIMode.gameWin);
         return;
       }
-        
+
       switch (pressedKey) {
         case "w":
           this.moveAvatar(0,-1);
@@ -333,7 +333,7 @@ Game.UIMode.gamePlay = {
         this.getMap().addEntity(this.getAvatar(),this.getMap().getRandomWalkableLocation());
         this.setCameraToAvatar();
 
-        //CREATE NEW MAP       
+        //CREATE NEW MAP
         //ADD ENTITIES TO MAP
         var avatar = this.getAvatar();
         var map = this.getMap();
@@ -352,33 +352,26 @@ Game.UIMode.gamePlay = {
         creationFormat = {entityType: 'cellController', fg : '#D8BFD8', chr : '@', moveStrategy : "RandomSweep", setIsInfectable : false};
         map.createEntityAroundPos(map.getRandomWalkableLocation(), 3, 5, creationFormat); 
 */
-
-
-
-        
         map.createEntityRandomPos( 15, Game.creationFormats.flytrap );
         //map.createEntityRandomPos( 15, Game.creationFormats.wanderer );
 
         map.createEntityRandomPos( 25, Game.creationFormats.corrupter ); 
-
 /*
         //our cells 
         Game.creationFormats.cellFollower.parentCell  = avatar;
         Game.creationFormats.cellFollower.targetEntity = avatar; 
         map.createEntityAroundPos( avatar.getPos(), 10, 20, Game.creationFormats.cellFollower );
 
-
         //parent cell
-        Game.creationFormats.cellLeader.fg = '#F345CA'; 
+        Game.creationFormats.cellLeader.fg = '#F345CA';
         var parentCell = map.createEntity(map.getRandomWalkableLocation(), Game.creationFormats.cellLeader );
 
         //children cells
-        Game.creationFormats.cellFollower.parentCell = parentCell; 
+        Game.creationFormats.cellFollower.parentCell = parentCell;
         Game.creationFormats.cellFollower.targetEntity = parentCell;
         Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg; 
         map.createEntityAroundPos( parentCell.getPos(), 10, 20, Game.creationFormats.cellFollower ); 
 */
-
 
     },
   toJSON: function() {
