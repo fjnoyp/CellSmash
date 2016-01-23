@@ -5,7 +5,7 @@ Game.CellMoveEnum = {
 Game.CellMoveStrategies = {
     _circleAround: function(ourPos ,targetPos){
         var x = ourPos.x;
-        var y = ourPos.y; 
+        var y = ourPos.y;
         var del = {x:0, y:0};
         var dist2 = Math.pow(targetPos.y-y, 2) + Math.pow(targetPos.x-x, 2);
 
@@ -24,19 +24,19 @@ Game.CellMoveStrategies = {
     },
 
     _moveToDist: function(ourPos, targetPos, minDist, maxDist){
-        var moveDeltas = {x:0, y:0}; 
+        var moveDeltas = {x:0, y:0};
 
-        var difX = targetPos.x - ourPos.x; 
-        var difY = targetPos.y - ourPos.y; 
+        var difX = targetPos.x - ourPos.x;
+        var difY = targetPos.y - ourPos.y;
 
-        var sqrDist = Math.pow(difX,2) + Math.pow(difY,2); 
+        var sqrDist = Math.pow(difX,2) + Math.pow(difY,2);
 
         //move toward
         if( sqrDist > maxDist || sqrDist < minDist){
             if(Math.abs(difX) > Math.abs(difY)){ moveDeltas.x = Game.util.clamp(difX, -1, 1); }
             else{ moveDeltas.y = Game.util.clamp(difY, -1, 1); }
 
-            //move away 
+            //move away
             if(sqrDist < minDist){
                 if(moveDeltas.x !== 0){
                     moveDeltas.x = moveDeltas.x * -1;
@@ -46,7 +46,7 @@ Game.CellMoveStrategies = {
                 }
             }
         }
-        return moveDeltas; 
+        return moveDeltas;
     },
 
     _moveToward: function (ourPos, targetPos) {
@@ -86,16 +86,18 @@ Game.CellMoveStrategies = {
     }, 
 
     "LocalMower" : {
-        getMoveDeltas: function(){
-            if(!this.desiredDist) this.desiredDist = 240; 
-            else if(this.desiredDist === 0) this.desiredDist = 240; 
-            
+        getMoveDeltas: function () {
+            if(!this.desiredDist) this.desiredDist = 240;
+            else if(this.desiredDist === 0) this.desiredDist = 240;
+
             this.desiredDist -= 3;
-            
-            if(this.desiredDist % 2 == 0)
+
+            if (this.desiredDist % 2 == 0) {
                 return Game.CellMoveStrategies._moveToDist( this.getPos(), {x:30,y:30}, this.desiredDist, this.desiredDist);
-            else
+            }
+            else {
                 return Game.CellMoveStrategies._circleAround( this.getPos(), {x:30, y:30} );
+            }
         }
     },
 
@@ -104,8 +106,8 @@ Game.CellMoveStrategies = {
             var us = this.getPos();
             var friends = [], enemies = [];
             
-            for (var dx = -2; dx <= 2; dx++) {
-                for (var dy = -2; dy <= 2; dy++) {
+            for (var dx = -6; dx <= 6; dx++) {
+                for (var dy = -6; dy <= 6; dy++) {
                     var en = this.getMap().getEntity(us.x+dx, us.y+dy);
                     if (en && en.isInfectable) {
                         if (en.isSameCellType(this)) {
@@ -123,7 +125,7 @@ Game.CellMoveStrategies = {
             }
 
             if (!this.targetEntity || !this.targetEntity.isInfectable
-                || this.targetEntity.isSameCellType(this)) {
+                    || this.targetEntity.isSameCellType(this)) {
                 this.targetEntity = enemies.random();
             }
 
@@ -147,18 +149,18 @@ Game.CellMoveStrategies = {
             }
         }
     },
-    
+
     "CircleAround" : {
         getMoveDeltas: function(){
             var moveDeltas = Game.CellMoveStrategies._moveToward(
-                this.getX(),
-                this.getY(),
-                this.getTargetEntity().getPos(),
-                40, 60); 
+                    this.getX(),
+                    this.getY(),
+                    this.getTargetEntity().getPos(),
+                    40, 60);
             if(moveDeltas.x === 0 && moveDeltas.y === 0){
                 return Game.CellMoveStrategies._circleAround(
-                    this.getPos(), 
-                    this.getTargetEntity().getPos() ); 
+                        this.getPos(),
+                        this.getTargetEntity().getPos() );
             }
             return moveDeltas;
         },
@@ -173,14 +175,14 @@ Game.CellMoveStrategies = {
             var deltas;
             if (Math.random() < 0.8) {
                 deltas = Game.CellMoveStrategies._moveToward(
-                    this.getPos(),
-                    this.targetPos);
+                        this.getPos(),
+                        this.targetPos);
             }
             else {
                 deltas = Game.CellMoveStrategies._circleAround(
-                    this.getX(),
-                    this.getY(),
-                    this.targetPos);
+                        this.getX(),
+                        this.getY(),
+                        this.targetPos);
             }
 
             if ((deltas.x === 0 && deltas.y === 0) || Math.random() < 0.01) {
@@ -205,8 +207,8 @@ Game.CellMoveStrategies = {
             var deltas, danger;
             do {
                 deltas = Game.CellMoveStrategies._circleAround(
-                    this.getPos(),
-                    this.getTargetEntity().getPos() );
+                        this.getPos(),
+                        this.getTargetEntity().getPos() );
                 danger = Game.CellMoveStrategies._moveToInfect.call(this, {
                     x: this.getX() + deltas.x,
                     y: this.getY() + deltas.y,
@@ -222,8 +224,8 @@ Game.CellMoveStrategies = {
             var deltas, danger;
             do {
                 deltas = Game.CellMoveStrategies._circleAround(
-                    this.getPos(),
-                    this.getTargetEntity().getPos() );
+                        this.getPos(),
+                        this.getTargetEntity().getPos() );
                 danger = Game.CellMoveStrategies._moveToInfect.call(this, {
                     x: this.getX() + deltas.x,
                     y: this.getY() + deltas.y,
@@ -236,8 +238,8 @@ Game.CellMoveStrategies = {
     "CircleAround" : {
         getMoveDeltas: function () {
             return Game.CellMoveStrategies._circleAround(
-                this.getPos(),
-                this.getTargetEntity().getPos());
+                    this.getPos(),
+                    this.getTargetEntity().getPos());
         }
     },
 
@@ -251,7 +253,7 @@ Game.CellMoveStrategies = {
             if(difY == 0){difY = Math.round( 2*Math.random() - 1 );}
 
             var moveDeltas = {x: Game.util.clamp(difX, -1, 1),
-                              y: Game.util.clamp(difY, -1, 1)};
+                y: Game.util.clamp(difY, -1, 1)};
 
             var entity = this.getMap().getEntity( this.getX() + moveDeltas.x, this.getY() + moveDeltas.y);
             if( entity && entity.isSameCellType && entity.isSameCellType(this) ){
@@ -299,23 +301,19 @@ Game.CellMoveStrategies = {
             var neighborCount = 0;
             var ourX = this.getX();
             var ourY = this.getY();
-            for(x = -1; x<2; x++){
-                for(y = -1; y<2; y++){
-                    if( x != 0 || y != 0){
-                        var entity = this.getMap().getEntity(ourX+x, ourY+y);
-                        if(entity && entity.hasOwnProperty("isSameCellType")){
-                            if(entity.isSameCellType(this)){
-                                neighborCount ++;
-                            }
-                        }
+            for (var x = -1; x <= 1; x++){
+                for (var y = -1; y <= 1; y++){
+                    var entity = this.getMap().getEntity(ourX+x, ourY+y);
+                    if (entity && entity.isSameCellType && entity.isSameCellType(this)){
+                        neighborCount++;
                     }
                 }
             }
             if (neighborCount > 1){
-                return Game.CellMoveStrategies["ClumpTogether"].call(this);
+                return Game.CellMoveStrategies.ClumpTogether.getMoveDeltas.call(this);
             }
             else {
-                return Game.CellMoveStrategies["CircleAround"].call(this);
+                return Game.CellMoveStrategies.CircleAround.getMoveDeltas.call(this);
             }
         }
     },
@@ -521,7 +519,7 @@ Game.EntityMixin.CellStateInformation = {
         },
     },
 
-//    moveStrategy: "WanderAround",
+    //    moveStrategy: "WanderAround",
     moveStrategy: Game.CellMoveStrategies["WanderAround"],
     parentCell: null,
     canInfect: true,
