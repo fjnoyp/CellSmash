@@ -338,22 +338,34 @@ Game.UIMode.gamePlay = {
         var avatar = this.getAvatar();
         var map = this.getMap();
 
-        var creationFormat = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "AssassinSwarm", targetEntity : avatar };
-        map.createEntityAroundPos(map.getRandomWalkableLocation(), 3, 5, creationFormat );
+        map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover ); 
 
+        map.createEntityRandomPos( 20, Game.creationFormats.assassinSwarm );
+        
+        Game.creationFormats.assassinSwarm.fg = '#00FFFF';
+        map.createEntityRandomPos( 20, Game.creationFormats.assassinSwarm );
+
+        Game.creationFormats.assassinSwarm.fg = '#F0F8FF';
+        map.createEntityRandomPos( 20, Game.creationFormats.assassinSwarm ); 
+
+/*
         creationFormat = {entityType: 'cellController', fg : '#D8BFD8', chr : '@', moveStrategy : "RandomSweep", setIsInfectable : false};
         map.createEntityAroundPos(map.getRandomWalkableLocation(), 3, 5, creationFormat); 
+*/
 
 
-        map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover ); 
+
+        
         map.createEntityRandomPos( 15, Game.creationFormats.flytrap );
-        map.createEntityRandomPos( 15, Game.creationFormats.wanderer );
-        map.createEntityRandomPos( 1, Game.creationFormats.localInfector );
+        //map.createEntityRandomPos( 15, Game.creationFormats.wanderer );
 
+        map.createEntityRandomPos( 25, Game.creationFormats.corrupter ); 
+
+/*
         //our cells 
         Game.creationFormats.cellFollower.parentCell  = avatar;
         Game.creationFormats.cellFollower.targetEntity = avatar; 
-        map.createEntityAroundPos( avatar.getPos(), 20, 20, Game.creationFormats.cellFollower );
+        map.createEntityAroundPos( avatar.getPos(), 10, 20, Game.creationFormats.cellFollower );
 
 
         //parent cell
@@ -364,7 +376,8 @@ Game.UIMode.gamePlay = {
         Game.creationFormats.cellFollower.parentCell = parentCell; 
         Game.creationFormats.cellFollower.targetEntity = parentCell;
         Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg; 
-        map.createEntityAroundPos( parentCell.getPos(), 50, 20, Game.creationFormats.cellFollower ); 
+        map.createEntityAroundPos( parentCell.getPos(), 10, 20, Game.creationFormats.cellFollower ); 
+*/
 
 
     },

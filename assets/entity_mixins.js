@@ -60,6 +60,7 @@ Game.CellMoveStrategies = {
         };
     },
 
+    //NOTE: method refers to map, use call to ensure proper scoping 
     _moveToInfect: function (pos) {
         var x = pos.x, y = pos.y;
 
@@ -78,19 +79,24 @@ Game.CellMoveStrategies = {
         return {x:0,y:0};
     },
 
+    "Corrupter" : {
+        getMoveDeltas: function(){
+            return Game.CellMoveStrategies._moveToInfect.call(this, this.getPos()); 
+        }
+    }, 
+
     "LocalMower" : {
-        getMoveDeltas: function () {
+        getMoveDeltas: function(){
             if(!this.desiredDist) this.desiredDist = 240; 
             else if(this.desiredDist === 0) this.desiredDist = 240; 
-
+            
             this.desiredDist -= 3;
-
+            
             if(this.desiredDist % 2 == 0)
                 return Game.CellMoveStrategies._moveToDist( this.getPos(), {x:30,y:30}, this.desiredDist, this.desiredDist);
             else
-                return Game.CellMoveStrategies._circleAround( this.getPos(), {x:30, y:30} ); 
-            
-        },
+                return Game.CellMoveStrategies._circleAround( this.getPos(), {x:30, y:30} );
+        }
     },
 
     "AssassinSwarm": {
@@ -98,8 +104,8 @@ Game.CellMoveStrategies = {
             var us = this.getPos();
             var friends = [], enemies = [];
             
-            for (var dx = -6; dx <= 6; dx++) {
-                for (var dy = -6; dy <= 6; dy++) {
+            for (var dx = -2; dx <= 2; dx++) {
+                for (var dy = -2; dy <= 2; dy++) {
                     var en = this.getMap().getEntity(us.x+dx, us.y+dy);
                     if (en && en.isInfectable) {
                         if (en.isSameCellType(this)) {
@@ -416,7 +422,7 @@ Game.EntityMixin.CellController = {
             },
         },
         init: function(template){
-            this.childrenCells = new Set(); 
+            this.childrenCells = new Set();
         },
     },
     childrenCells: null,
@@ -442,21 +448,58 @@ Game.EntityMixin.CellInfect = {
                 //infect can mean changing behavior and/or appearance of other cell, other cell can also have resistances, cellInformation will probably expose all relevant information about cell, method set to allow for this
                 //evtData.receipient.raiseEntityEvent('infect',);
                 if(this.canInfect){
-                    if(evtData.recipient.setAppearance && !evtData.recipient.isSameCellType(this) ){
-                        if(evtData.recipient.getIsInfectable() == true){
-                            evtData.recipient.setAppearance(this.getFg(), this.getChar());
-                            evtData.recipient.setMoveStrategy(this.getMoveStrategy());
-                            evtData.recipient.setParentCell(this.getParentCell());
+                    var recipient = evtData.recipient; 
+                    if(recipient.setAppearance && !recipient.isSameCellType(this) ){
+                        if(recipient.getIsInfectable() === true){
 
-                            evtData.recipient.setTargetEntity(this.getTargetEntity());
+                            //always copy same apperance regardless of infection package 
+                            recipient.setAppearance(this.getFg(), this.getChar());
+                            recipient.setParentCell(this.getParentCell());
+                            recipient.setTargetEntity(this.getTargetEntity()); 
+
+                            //this allows cells to infect another cell but not neccessarily make a copy of itself
+                            if(this.infectionPackage){
+                                if(this.infectionPackage.moveStrategy){
+                                    recipient.setMoveStrategy(this.infectionPackage.moveStrategy); 
+                                }
+                                if(this.infectionPackage.infectionPackage){
+                                    recipient.setInfectionPackage(this.infectionPackage.infectionPackage);
+                                    console.log("here"); 
+                                }
+                                if(this.infectionPackage.chr){
+                                    recipient.setChar(this.infectionPackage.chr); 
+                                }
+                                
+                            }
+                            else{
+                                recipient.setInfectionPackage(null);
+                                recipient.setMoveStrategy(this.getMoveStrategy()); 
+                            }
+
+                            /* no usage for this as of yet 
+                            if(this.getParentCell()){
+                                this.getParentCell().raiseEntityEvent('cellInfect', {infector:this, infectee:recipient}); 
+                            }
+                            if(recipient.getParentCell()){
+                                recipient.getParentCell().raiseEntityEvent('cellInfect', {infector:this, infectee:recipient}); 
+                            }
+                            */
                         }
                     }
                 }
 
             }
         }
-    }
+    },
 
+    infectionPackage : null,
+
+    setInfectionPackage : function(infectionPackage){
+        this.infectionPackage = infectionPackage; 
+    },
+    getInfectionPackage : function(){
+        return this.infectionPackage; 
+    }
 };
 
 //Individual cell memory and identification

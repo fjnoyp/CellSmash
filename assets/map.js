@@ -210,6 +210,9 @@ Game.Map.prototype.createEntity = function(pos, creationFormat) {
         newEntity.setIsInfectable( creationFormat.setIsInfectable );
     }
 
+    if(creationFormat.infectionPackage){
+        newEntity.setInfectionPackage(creationFormat.infectionPackage);
+    }
     this.addEntity(newEntity, pos);
     return newEntity;
 };
