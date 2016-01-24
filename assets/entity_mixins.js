@@ -171,7 +171,7 @@ Game.CellMoveStrategies = {
             }
 
             //WIP code cleanup pending 
-            if(enemies.length > 0 && friends.length == 0){
+            if(enemies.length > 0 && friends.length < 2){
                 return Game.CellMoveStrategies._moveToward(this.getPos(), enemies.random().getPos()); 
             }
 
@@ -179,7 +179,7 @@ Game.CellMoveStrategies = {
                 return {x:0, y:0}; 
             }
             
-            if(enemies.length >= 3){
+            if(enemies.length > 3){
                 return Game.CellMoveStrategies._moveToward(this.getPos(), enemies.random().getPos()); 
             }
 
@@ -192,8 +192,8 @@ Game.CellMoveStrategies = {
             var us = this.getPos();
             var friends = [], enemies = [];
             
-            for (var dx = -2; dx <= 2; dx++) {
-                for (var dy = -2; dy <= 2; dy++) {
+            for (var dx = -6; dx <= 6; dx++) {
+                for (var dy = -6; dy <= 6; dy++) {
                     var en = this.getMap().getEntity(us.x+dx, us.y+dy);
                     if (en && en.isInfectable) {
                         if (en.isSameCellType(this)) {
@@ -226,7 +226,7 @@ Game.CellMoveStrategies = {
             }
             else {
                 var dist = dx*dx+dy*dy;
-                if (8 < dist && dist < 40) {
+                if (8 < dist && dist < 40 && friends.length > 10) {
                     return Game.CellMoveStrategies._circleAround(us, it);
                 }
                 else {
@@ -275,7 +275,7 @@ Game.CellMoveStrategies = {
                 this.targetPos = null;
             }
 
-            return deltas;
+           return deltas;
         }
     },
 
