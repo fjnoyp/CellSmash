@@ -339,10 +339,10 @@ Game.UIMode.gamePlay = {
         var map = this.getMap();
 
 
-        map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover ); 
+        //map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover ); 
 
-
-        map.createEntityRandomPos( 15, Game.creationFormats.groupInfector );
+ 
+        map.createEntityRandomPos( 25, Game.creationFormats.groupInfector );
         
         Game.creationFormats.assassinSwarm.fg = '#00FFFF';
         map.createEntityRandomPos( 4, Game.creationFormats.clumpSwarmer );
@@ -350,8 +350,8 @@ Game.UIMode.gamePlay = {
         Game.creationFormats.assassinSwarm.fg = '#F0F8FF';
         map.createEntityRandomPos( 4, Game.creationFormats.clumpSwarmer );
 
-        map.createEntityRandomPos( 15, Game.creationFormats.flytrap );
-        map.createEntityRandomPos( 15, Game.creationFormats.wanderer );
+        map.createEntityRandomPos( 20, Game.creationFormats.flytrap );
+        map.createEntityRandomPos( 35, Game.creationFormats.wanderer );
 
         //our cells 
         Game.creationFormats.cellFollower.parentCell  = avatar;
