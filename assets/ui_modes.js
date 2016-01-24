@@ -338,29 +338,26 @@ Game.UIMode.gamePlay = {
         var avatar = this.getAvatar();
         var map = this.getMap();
 
+
         map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover ); 
 
-        map.createEntityRandomPos( 20, Game.creationFormats.assassinSwarm );
+
+        map.createEntityRandomPos( 15, Game.creationFormats.groupInfector );
         
         Game.creationFormats.assassinSwarm.fg = '#00FFFF';
-        map.createEntityRandomPos( 20, Game.creationFormats.assassinSwarm );
+        map.createEntityRandomPos( 4, Game.creationFormats.clumpSwarmer );
 
         Game.creationFormats.assassinSwarm.fg = '#F0F8FF';
-        map.createEntityRandomPos( 20, Game.creationFormats.assassinSwarm ); 
+        map.createEntityRandomPos( 4, Game.creationFormats.clumpSwarmer );
 
-/*
-        creationFormat = {entityType: 'cellController', fg : '#D8BFD8', chr : '@', moveStrategy : "RandomSweep", setIsInfectable : false};
-        map.createEntityAroundPos(map.getRandomWalkableLocation(), 3, 5, creationFormat); 
-*/
         map.createEntityRandomPos( 15, Game.creationFormats.flytrap );
-        //map.createEntityRandomPos( 15, Game.creationFormats.wanderer );
+        map.createEntityRandomPos( 15, Game.creationFormats.wanderer );
 
-        map.createEntityRandomPos( 25, Game.creationFormats.corrupter ); 
-/*
         //our cells 
         Game.creationFormats.cellFollower.parentCell  = avatar;
         Game.creationFormats.cellFollower.targetEntity = avatar; 
         map.createEntityAroundPos( avatar.getPos(), 10, 20, Game.creationFormats.cellFollower );
+
 
         //parent cell
         Game.creationFormats.cellLeader.fg = '#F345CA';
@@ -371,7 +368,12 @@ Game.UIMode.gamePlay = {
         Game.creationFormats.cellFollower.targetEntity = parentCell;
         Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg; 
         map.createEntityAroundPos( parentCell.getPos(), 10, 20, Game.creationFormats.cellFollower ); 
-*/
+
+
+        map.createEntityAroundPos( map.getRandomWalkableLocation(), 40, 10, Game.creationFormats.corrupter ); 
+
+
+
 
     },
   toJSON: function() {

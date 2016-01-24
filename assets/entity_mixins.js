@@ -81,7 +81,8 @@ Game.CellMoveStrategies = {
 
     "Corrupter" : {
         getMoveDeltas: function(){
-            return Game.CellMoveStrategies._moveToInfect.call(this, this.getPos()); 
+            //return Game.CellMoveStrategies._moveToInfect.call(this,this.getPos()); 
+            return Game.CellMoveStrategies.ClumpTogether.getMoveDeltas(this); 
         }
     }, 
 
@@ -101,13 +102,98 @@ Game.CellMoveStrategies = {
         }
     },
 
-    "AssassinSwarm": {
+    "ClumpSwarmer": {
         getMoveDeltas: function () {
             var us = this.getPos();
             var friends = [], enemies = [];
             
             for (var dx = -6; dx <= 6; dx++) {
                 for (var dy = -6; dy <= 6; dy++) {
+                    var en = this.getMap().getEntity(us.x+dx, us.y+dy);
+                    if (en && en.isInfectable) {
+                        if (en.isSameCellType(this)) {
+                            friends.push(en);
+                        }
+                        else {
+                            enemies.push(en);
+                        }
+                    }
+                }
+            }
+
+            if (friends.length > 0) {
+                this.targetEntity = friends.random().targetEntity || this.targetEntity;
+            }
+
+            if (!this.targetEntity || !this.targetEntity.isInfectable
+                    || this.targetEntity.isSameCellType(this)) {
+                this.targetEntity = enemies.random();
+            }
+
+            if (!this.targetEntity) {
+                return Game.CellMoveStrategies.RandomSweep.getMoveDeltas.call(this);
+            }
+
+            var it = this.targetEntity.getPos();
+
+            /*
+            if(enemies.length > 14){
+                return Game.CellMoveStrategies._moveToward(us, it);
+            }
+            */
+
+            if(Math.random() > .1){
+                return Game.CellMoveStrategies._circleAround(us, it);
+            }
+            else{
+                return Game.CellMoveStrategies._moveToward(us, it);
+            }
+        }
+    },
+
+    "GroupInfector" : {
+        getMoveDeltas: function() {
+            var us = this.getPos(); 
+            var enemies = [];
+            var friends = []; 
+            for (var dx = -1; dx <= 1; dx++) {
+                for (var dy = -1; dy <= 1; dy++) {
+                    var en = this.getMap().getEntity(us.x+dx, us.y+dy);
+                    if (en && en.isInfectable) {
+                        if (en.isSameCellType(this)) {
+                            friends.push(en);
+                        }
+                        else {
+                            enemies.push(en);
+                        }
+                    }
+                }
+            }
+
+            //WIP code cleanup pending 
+            if(enemies.length > 0 && friends.length == 0){
+                return Game.CellMoveStrategies._moveToward(this.getPos(), enemies.random().getPos()); 
+            }
+
+            if(friends.length >= 4){
+                return {x:0, y:0}; 
+            }
+            
+            if(enemies.length >= 3){
+                return Game.CellMoveStrategies._moveToward(this.getPos(), enemies.random().getPos()); 
+            }
+
+            return {x:0, y:0}; 
+        }
+    }, 
+
+    "AssassinSwarm": {
+        getMoveDeltas: function () {
+            var us = this.getPos();
+            var friends = [], enemies = [];
+            
+            for (var dx = -2; dx <= 2; dx++) {
+                for (var dy = -2; dy <= 2; dy++) {
                     var en = this.getMap().getEntity(us.x+dx, us.y+dy);
                     if (en && en.isInfectable) {
                         if (en.isSameCellType(this)) {
@@ -323,6 +409,17 @@ Game.CellMoveStrategies = {
             return {x:0, y:0};
         }
     },
+
+    "InfectInDir": {
+        getMoveDeltas : function(){
+            if(!this.infectionDir){
+                this.infectionDir 
+            }
+        }
+    }
+
+
+    
 };
 
 
@@ -452,8 +549,8 @@ Game.EntityMixin.CellInfect = {
 
                             //always copy same apperance regardless of infection package 
                             recipient.setAppearance(this.getFg(), this.getChar());
-                            recipient.setParentCell(this.getParentCell());
-                            recipient.setTargetEntity(this.getTargetEntity()); 
+
+
 
                             //this allows cells to infect another cell but not neccessarily make a copy of itself
                             if(this.infectionPackage){
@@ -467,11 +564,13 @@ Game.EntityMixin.CellInfect = {
                                 if(this.infectionPackage.chr){
                                     recipient.setChar(this.infectionPackage.chr); 
                                 }
-                                
                             }
                             else{
                                 recipient.setInfectionPackage(null);
-                                recipient.setMoveStrategy(this.getMoveStrategy()); 
+                                recipient.setMoveStrategy(this.getMoveStrategy());
+                                recipient.setParentCell(this.getParentCell());
+                                recipient.setTargetEntity(this.getTargetEntity()); 
+
                             }
 
                             /* no usage for this as of yet 
