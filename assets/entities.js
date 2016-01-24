@@ -51,10 +51,15 @@ Game.creationFormats.cellLeader = {entityType: 'cellController', fg : '#66FF33',
 
 Game.creationFormats.rover = {entityType: 'cell', fg : '#FF7F50', chr : 'r', moveStrategy : "LocalMower"}; 
 
-Game.creationFormats.assassinSwarm = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "AssassinSwarm"};
+
+Game.creationFormats.assassinSwarm = {entityType: 'cell', fg : '#FF0000', chr : '!', moveStrategy : "AssassinSwarm"};
+
+Game.creationFormats.clumpSwarmer = {entityType: 'cell', fg : '#FFD700', chr : '^', moveStrategy : "ClumpSwarmer"};
 
 var infectionPackage = { infectionPackage : {moveStrategy : "Corrupter", chr: '+'}};
 infectionPackage.infectionPackage.infectionPackage = infectionPackage; 
 console.dir(infectionPackage); 
 
-Game.creationFormats.corrupter = {entityType: 'cell', fg : '#8B008B', chr : '+', moveStrategy : "Corrupter", infectionPackage : infectionPackage}; 
+Game.creationFormats.corrupter = {entityType: 'cell', fg : '#8B008B', chr : '+', moveStrategy : "Corrupter", infectionPackage : infectionPackage};
+
+Game.creationFormats.groupInfector = {entityType: 'cell', fg : '#00FF7F', chr : '%', moveStrategy : "GroupInfector"}; 
