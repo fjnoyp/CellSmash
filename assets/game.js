@@ -7,7 +7,7 @@ window.onload = function() {
         // Initialize the game
         Game.init();
 
-        ["main"/*, "avatar" */].forEach(function (key) {
+        ["main", "avatar"].forEach(function (key) {
           var div = document.createElement("div");
           div.id = "wsrl-display-" + key;
           div.classList.add("wsrl-display");
@@ -24,21 +24,8 @@ var Game = {
 
   _DISPLAY_SPACING: 1.1,
   _display: {
-    main: {
-      w: 60,
-      h: 60,
-      o: null
-    },
-    avatar: {
-      w: 30,
-      h: 30,
-      o: null
-    },
-    message: {
-      w: 0,
-      h: 0,
-      o: null
-    }
+    main: { width: 75, height: 50 },
+    avatar: { width: 30, height: 50 }
   },
 
   _game: null,
@@ -62,7 +49,7 @@ var Game = {
 
     for (var display_key in this._display) {
       if (this._display.hasOwnProperty(display_key)) {
-          this._display[display_key].o = new ROT.Display({width: this._display[display_key].w, height: this._display[display_key].h, spacing: Game._DISPLAY_SPACING, forceSquareRatio:true});
+          this._display[display_key] = new ROT.Display(this._display[display_key]);
       }
     }
     this.renderDisplayAll();
@@ -147,7 +134,7 @@ var Game = {
 
   getDisplay: function (displayId) {
     if (this._display.hasOwnProperty(displayId)) {
-      return this._display[displayId].o;
+      return this._display[displayId];
     }
     return null;
   },
@@ -161,25 +148,25 @@ var Game = {
     this.renderDisplayMessage();
   },
   renderDisplayAvatar: function() {
-    this._display.avatar.o.clear();
+    this._display.avatar.clear();
     if (this._curUiMode === null) {
       return;
     }
     if (this._curUiMode.hasOwnProperty('renderAvatarInfo')) {
-      this._curUiMode.renderAvatarInfo(this._display.avatar.o);
+      this._curUiMode.renderAvatarInfo(this._display.avatar);
     }
   },
   renderDisplayMain: function() {
-    this._display.main.o.clear();
+    this._display.main.clear();
     if (this._curUiMode === null) {
       return;
     }
       if (this._curUiMode.hasOwnProperty('render')) {
-        this._curUiMode.render(this._display.main.o);
+        this._curUiMode.render(this._display.main);
     }
   },
   renderDisplayMessage: function() {
-    Game.Message.render(this._display.message.o);
+    //Game.Message.render(this._display.message);
   },
 
   eventHandler: function (eventType, evt) {

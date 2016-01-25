@@ -161,15 +161,21 @@ Game.UIMode.gamePlay = {
 
         //this.renderAvatar(display);
     },
-    // renderAvatar: function (display) {
-    //   Game.Symbol.AVATAR.draw(display,this.attr._avatar.getX()-this.attr._cameraX+display._options.width/2,
-    //                                   this.attr._avatar.getY()-this.attr._cameraY+display._options.height/2);
-    // },
     renderAvatarInfo: function (display) {
-        var fg = Game.UIMode.DEFAULT_COLOR_FG;
-        var bg = Game.UIMode.DEFAULT_COLOR_BG;
-        display.drawText(1,2,"avatar x: "+this.getAvatar().getX(),fg,bg); // DEV
-        display.drawText(1,3,"avatar y: "+this.getAvatar().getY(),fg,bg); // DEV
+        var avatar = this.getAvatar();
+        display.drawText(1,1, "avatar x: " + this.getAvatar().getX());
+        display.drawText(1,2, "avatar y: " + this.getAvatar().getY());
+        display.drawText(1,4, "Swarm:    " + avatar.childrenCells.size);
+        var row = 8;
+        display.drawText(1,7, "Orders given:");
+        avatar.moveStrategyStack.forEach(function (s) {
+            if (s[1] < 0) {
+                display.drawText(4, row++, s[0]);
+            }
+            else {
+                display.drawText(4, row++, s[0] + " (" + s[1] + " turns)");
+            }
+        });
     },
     moveAvatar: function (dx,dy) {
         if (this.getAvatar().tryWalk(this.getMap(),dx,dy)) {
