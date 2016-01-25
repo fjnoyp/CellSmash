@@ -245,6 +245,12 @@ Game.CellMoveStrategies = {
         getMoveDeltas: function () {
             if (!this.targetPos) {
                 this.targetPos = this.getMap().getRandomWalkableLocation();
+
+                if (this.childrenCells) {
+                    this.raiseEntityEvent('cellChange', {
+                        keyPress: 'q'
+                    });
+                }
             }
 
             var deltas;
@@ -672,7 +678,6 @@ Game.EntityMixin.EnemyAvatar = {
         mixinGroup: 'Avatar',
         listeners: {
             'childInfected': function (evtData) {
-                console.log(this.childrenCells.size);
                 if (this.childrenCells.size <= 0) {
                     Game.switchUiMode(Game.UIMode.gameWin);
                 }
@@ -688,7 +693,6 @@ Game.EntityMixin.Avatar = {
         mixinGroup: 'Avatar',
         listeners: {
             'childInfected': function (evtData) {
-                console.log(this.childrenCells.size);
                 if (this.childrenCells.size <= 0) {
                     Game.switchUiMode(Game.UIMode.gameLose);
                 }
