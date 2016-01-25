@@ -23,15 +23,13 @@ Game.MapTileSets = {
             return mapTiles;
         }
     },
+
     blankMap: {
-        _width: 125,
-        _height: 125, 
+        _width: 60,
+        _height: 60,
         getMapTiles: function(){
             var mapTiles = Game.util.init2DArray(this._width,this._height,Game.Tile.floorTile);
-            return mapTiles; 
+            return mapTiles;
         }
     }
 };
-
-
-

@@ -223,6 +223,13 @@ Game.Map.prototype.createEntityRandomPos = function(num, creationFormat){
     }
 };
 
+Game.Map.prototype.createEntitiesAroundRandomPos = function (times, num, rad, fmt) {
+    while (times-- > 0) {
+        var pos = this.getRandomWalkableLocation();
+        this.createEntityAroundPos(pos, num, rad, fmt);
+    }
+};
+
 Game.Map.prototype.createEntityAroundPos = function(pos, num, radius, creationFormat){
     for(i = 0; i<num; i++){
         var newPos = {};
