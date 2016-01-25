@@ -25,7 +25,7 @@ Game.EntityGenerator.learn({
   name: 'cellController',
   chr:'@',
   fg:'#ffff00',
-    mixins: ["WalkerCorporeal", "CellMove", "CellStateInformation", "CellController"]
+    mixins: ["EnemyAvatar", "WalkerCorporeal", "CellMove", "CellStateInformation", "CellController"]
 });
 
 Game.EntityGenerator.learn({

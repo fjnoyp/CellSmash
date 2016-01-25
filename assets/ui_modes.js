@@ -269,7 +269,7 @@ Game.UIMode.gamePlay = {
         Game.creationFormats.cellFollower.parentCell = parentCell;
         Game.creationFormats.cellFollower.targetEntity = parentCell;
         Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg;
-        map.createEntityAroundPos( parentCell.getPos(), 10, 20, Game.creationFormats.cellFollower );
+        map.createEntityAroundPos( parentCell.getPos(), 30, 10, Game.creationFormats.cellFollower );
 
 
         //map.createEntityAroundPos( map.getRandomWalkableLocation(), 40, 10, Game.creationFormats.corrupter );
