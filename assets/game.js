@@ -25,13 +25,13 @@ var Game = {
   _DISPLAY_SPACING: 1.1,
   _display: {
     main: {
-      w: 75,
-      h: 75,
+      w: 60,
+      h: 60,
       o: null
     },
     avatar: {
-      w: 0,
-      h: 0,
+      w: 30,
+      h: 30,
       o: null
     },
     message: {

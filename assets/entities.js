@@ -1,11 +1,11 @@
 Game.EntityGenerator = new Game.Generator('entities',Game.Entity);
 
 Game.EntityGenerator.learn({
-  name: 'avatar',
-  chr:'@',
-  fg:'#F0F8FF',
+    name: 'avatar',
+    chr:'@',
+    fg:'#F0F8FF',
     maxHp: 10,
-    mixins: ["WalkerCorporeal","CellController","Avatar"]
+    mixins: ["WalkerCorporeal", "CellController", "CellStateInformation", "Avatar"]
 });
 
 Game.EntityGenerator.learn({
@@ -15,27 +15,25 @@ Game.EntityGenerator.learn({
 });
 
 Game.EntityGenerator.learn({
-  name: 'cell',
-  chr:'#',
-  fg:'#ffff00',
+    name: 'cell',
+    chr:'#',
+    fg:'#ffff00',
     mixins: ["CellMove", "WalkerCorporeal", "CellStateInformation", "CellInfect"]
 });
 
 Game.EntityGenerator.learn({
-  name: 'cellController',
-  chr:'@',
-  fg:'#ffff00',
-    mixins: ["EnemyAvatar", "WalkerCorporeal", "CellMove", "CellStateInformation", "CellController"]
+    name: 'cellController',
+    chr:'@',
+    fg:'#ffff00',
+    mixins: ["WalkerCorporeal", "CellController", "CellStateInformation", "EnemyAvatar", "CellMove"]
 });
 
 Game.EntityGenerator.learn({
-  name: 'growable',
-  chr:'^',
-  fg:'#ffff00',
+    name: 'growable',
+    chr:'^',
+    fg:'#ffff00',
     mixins: ["CellStateInformation", "Growable"]
 });
-
-
 
 Game.creationFormats = {};
 Game.creationFormats.flytrap = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
