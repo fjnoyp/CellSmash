@@ -241,32 +241,42 @@ Game.CellMoveStrategies = {
         },
     },
 
+    "SwarmWhenWeak": {
+        getMoveDeltas: function () {
+            var children = this.childrenCells;
+            if (children && (!this.targetPos || Math.random < 2/children.size)) {
+                var strategy = ROT.RNG.getWeightedValue({
+                    ClusterAround: 5,
+                    CircleSafely: children.size,
+                    AssassinSwarm: 200/children.size,
+                });
+                children.forEach(function (child) {
+                    child.raiseEntityEvent('cellChange', {
+                        moveStrategy: strategy
+                    });
+                });
+            }
+
+            return Game.CellMoveStrategies.RandomSweep.getMoveDeltas.call(this);
+        }
+    },
+
     "RandomSweep": {
         getMoveDeltas: function () {
             if (!this.targetPos) {
                 this.targetPos = this.getMap().getRandomWalkableLocation();
-
-                if (this.childrenCells) {
-                    this.raiseEntityEvent('cellChange', {
-                        keyPress: 'q'
-                    });
-                }
             }
 
-            var deltas;
-            if (Math.random() < 0.8) {
-                deltas = Game.CellMoveStrategies._moveToward(
-                        this.getPos(),
-                        this.targetPos);
-            }
-            else {
-                deltas = Game.CellMoveStrategies._circleAround(
-                        this.getX(),
-                        this.getY(),
-                        this.targetPos);
-            }
+            var us = this.getPos();
+            var strategy = Game.CellMoveStrategies[ROT.RNG.getWeightedValue({
+                _moveToward: 8,
+                _circleAround: 2,
+            })];
+            var deltas = strategy.call(this, us, this.targetPos);
 
-            if ((deltas.x === 0 && deltas.y === 0) || Math.random() < 0.01) {
+            if ((deltas.x === 0 && deltas.y === 0)
+                    || this.getMap().getEntity(us.x+deltas.x, us.y+deltas.y)
+                    || Math.random() < 0.01) {
                 this.targetPos = null;
             }
 
@@ -301,7 +311,7 @@ Game.CellMoveStrategies = {
 
     "CircleSafely" : {
         getMoveDeltas: function () {
-            var tries = 100;
+            var tries = 500;
             var deltas, danger;
             do {
                 deltas = Game.CellMoveStrategies._circleAround(
@@ -594,9 +604,9 @@ Game.EntityMixin.CellStateInformation = {
         mixinGroup: 'Cell',
         listeners: {
             'cellChange': function(evtData){
+                if (!evtData.moveStrategy) return;
                 this.setTargetEntity(this.getParentCell());
                 this.setMoveStrategy(evtData.moveStrategy);
-                //this.moveStrategy = evtData.curMoveStrategy;
             }
         },
         init: function(template){
