@@ -7,10 +7,13 @@ window.onload = function() {
         // Initialize the game
         Game.init();
 
-        // Add the containers to our HTML page
-        document.getElementById('wsrl-avatar-display').appendChild(   Game.getDisplay('avatar').getContainer());
-        document.getElementById('wsrl-main-display').appendChild(   Game.getDisplay('main').getContainer());
-        document.getElementById('wsrl-message-display').appendChild(   Game.getDisplay('message').getContainer());
+        ["main"/*, "avatar" */].forEach(function (key) {
+          var div = document.createElement("div");
+          div.id = "wsrl-display-" + key;
+          div.classList.add("wsrl-display");
+          div.appendChild(Game.getDisplay(key).getContainer());
+          document.body.appendChild(div);
+        });
 
         Game.switchUiMode(Game.UIMode.gameStart);
     }
