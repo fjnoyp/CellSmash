@@ -666,6 +666,22 @@ Game.EntityMixin.CellStateInformation = {
 
 };
 
+Game.EntityMixin.EnemyAvatar = {
+    META: {
+        mixinName: 'EnemyAvatar',
+        mixinGroup: 'Avatar',
+        listeners: {
+            'childInfected': function (evtData) {
+                console.log(this.childrenCells.size);
+                if (this.childrenCells.size <= 0) {
+                    Game.switchUiMode(Game.UIMode.gameWin);
+                }
+            }
+        }
+    },
+};
+
+
 Game.EntityMixin.Avatar = {
     META: {
         mixinName: 'Avatar',
