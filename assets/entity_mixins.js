@@ -60,7 +60,7 @@ Game.CellMoveStrategies = {
         };
     },
 
-    //NOTE: method refers to map, use call to ensure proper scoping 
+    //NOTE: method refers to map, use call to ensure proper scoping
     _moveToInfect: function (pos) {
         var x = pos.x, y = pos.y;
 
@@ -81,10 +81,10 @@ Game.CellMoveStrategies = {
 
     "Corrupter" : {
         getMoveDeltas: function(){
-            //return Game.CellMoveStrategies._moveToInfect.call(this,this.getPos()); 
-            return Game.CellMoveStrategies.ClumpTogether.getMoveDeltas(this); 
+            //return Game.CellMoveStrategies._moveToInfect.call(this,this.getPos());
+            return Game.CellMoveStrategies.ClumpTogether.getMoveDeltas(this);
         }
-    }, 
+    },
 
     "LocalMower" : {
         getMoveDeltas: function () {
@@ -106,7 +106,7 @@ Game.CellMoveStrategies = {
         getMoveDeltas: function () {
             var us = this.getPos();
             var friends = [], enemies = [];
-            
+
             for (var dx = -6; dx <= 6; dx++) {
                 for (var dy = -6; dy <= 6; dy++) {
                     var en = this.getMap().getEntity(us.x+dx, us.y+dy);
@@ -136,16 +136,10 @@ Game.CellMoveStrategies = {
 
             var it = this.targetEntity.getPos();
 
-            /*
-            if(enemies.length > 14){
-                return Game.CellMoveStrategies._moveToward(us, it);
-            }
-            */
-
-            if(Math.random() > .1){
+            if (Math.random() > .1){
                 return Game.CellMoveStrategies._circleAround(us, it);
             }
-            else{
+            else {
                 return Game.CellMoveStrategies._moveToward(us, it);
             }
         }
@@ -153,45 +147,40 @@ Game.CellMoveStrategies = {
 
     "GroupInfector" : {
         getMoveDeltas: function() {
-            var us = this.getPos(); 
-            var enemies = [];
-            var friends = []; 
-            for (var dx = -1; dx <= 1; dx++) {
-                for (var dy = -1; dy <= 1; dy++) {
+            var us = this.getPos();
+
+            var closeEnemies = [];
+            var totalEnemies = 0;
+            var totalFriends = 0;
+            for (var dx = -2; dx <= 2; dx++) {
+                for (var dy = -2; dy <= 2; dy++) {
                     var en = this.getMap().getEntity(us.x+dx, us.y+dy);
                     if (en && en.isInfectable) {
                         if (en.isSameCellType(this)) {
-                            friends.push(en);
+                            totalFriends++;
                         }
                         else {
-                            enemies.push(en);
+                            totalEnemies++;
+                            if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
+                                closeEnemies.push({x:dx,y:dy})
+                            }
                         }
                     }
                 }
             }
 
-            //WIP code cleanup pending 
-            if(enemies.length > 0 && friends.length < 2){
-                return Game.CellMoveStrategies._moveToward(this.getPos(), enemies.random().getPos()); 
+            if (closeEnemies.length > 0 && totalFriends < 3) {
+                return closeEnemies.random();
             }
-
-            if(friends.length >= 4){
-                return {x:0, y:0}; 
-            }
-            
-            if(enemies.length > 3){
-                return Game.CellMoveStrategies._moveToward(this.getPos(), enemies.random().getPos()); 
-            }
-
-            return {x:0, y:0}; 
+            return {x:0, y:0};
         }
-    }, 
+    },
 
     "AssassinSwarm": {
         getMoveDeltas: function () {
             var us = this.getPos();
             var friends = [], enemies = [];
-            
+
             for (var dx = -6; dx <= 6; dx++) {
                 for (var dy = -6; dy <= 6; dy++) {
                     var en = this.getMap().getEntity(us.x+dx, us.y+dy);
@@ -275,7 +264,7 @@ Game.CellMoveStrategies = {
                 this.targetPos = null;
             }
 
-           return deltas;
+            return deltas;
         }
     },
 
@@ -413,13 +402,13 @@ Game.CellMoveStrategies = {
     "InfectInDir": {
         getMoveDeltas : function(){
             if(!this.infectionDir){
-                this.infectionDir 
+                this.infectionDir
             }
         }
     }
 
 
-    
+
 };
 
 
@@ -542,49 +531,41 @@ Game.EntityMixin.CellInfect = {
 
                 //infect can mean changing behavior and/or appearance of other cell, other cell can also have resistances, cellInformation will probably expose all relevant information about cell, method set to allow for this
                 //evtData.receipient.raiseEntityEvent('infect',);
-                if(this.canInfect){
-                    var recipient = evtData.recipient; 
-                    if(recipient.setAppearance && !recipient.isSameCellType(this) ){
-                        if(recipient.getIsInfectable() === true){
+                if (this.canInfect){
+                    var recipient = evtData.recipient;
+                    if (recipient.setAppearance && !recipient.isSameCellType(this) && recipient.getIsInfectable()) {
+                        //always copy same apperance regardless of infection package
+                        recipient.setAppearance(this.getFg(), this.getChar());
 
-                            //always copy same apperance regardless of infection package 
-                            recipient.setAppearance(this.getFg(), this.getChar());
-
-
-
-                            //this allows cells to infect another cell but not neccessarily make a copy of itself
-                            if(this.infectionPackage){
-                                if(this.infectionPackage.moveStrategy){
-                                    recipient.setMoveStrategy(this.infectionPackage.moveStrategy); 
-                                }
-                                if(this.infectionPackage.infectionPackage){
-                                    recipient.setInfectionPackage(this.infectionPackage.infectionPackage);
-                                    console.log("here"); 
-                                }
-                                if(this.infectionPackage.chr){
-                                    recipient.setChar(this.infectionPackage.chr); 
-                                }
+                        //this allows cells to infect another cell but not neccessarily make a copy of itself
+                        if (this.infectionPackage) {
+                            if(this.infectionPackage.moveStrategy){
+                                recipient.setMoveStrategy(this.infectionPackage.moveStrategy);
                             }
-                            else{
-                                recipient.setInfectionPackage(null);
-                                recipient.setMoveStrategy(this.getMoveStrategy());
-                                recipient.setParentCell(this.getParentCell());
-                                recipient.setTargetEntity(this.getTargetEntity()); 
+                            if(this.infectionPackage.infectionPackage){
+                                recipient.setInfectionPackage(this.infectionPackage.infectionPackage);
+                            }
+                            if(this.infectionPackage.chr){
+                                recipient.setChar(this.infectionPackage.chr);
+                            }
+                        }
+                        else {
+                            var exparent = recipient.getParentCell();
 
-                            }
+                            recipient.setInfectionPackage(null);
+                            recipient.setMoveStrategy(this.getMoveStrategy());
+                            recipient.setParentCell(this.getParentCell());
+                            recipient.setTargetEntity(this.getTargetEntity());
 
-                            /* no usage for this as of yet 
-                            if(this.getParentCell()){
-                                this.getParentCell().raiseEntityEvent('cellInfect', {infector:this, infectee:recipient}); 
+                            if (exparent) {
+                                exparent.raiseEntityEvent('childInfected', {
+                                    infector: this,
+                                    infectee: recipient
+                                });
                             }
-                            if(recipient.getParentCell()){
-                                recipient.getParentCell().raiseEntityEvent('cellInfect', {infector:this, infectee:recipient}); 
-                            }
-                            */
                         }
                     }
                 }
-
             }
         }
     },
@@ -592,10 +573,10 @@ Game.EntityMixin.CellInfect = {
     infectionPackage : null,
 
     setInfectionPackage : function(infectionPackage){
-        this.infectionPackage = infectionPackage; 
+        this.infectionPackage = infectionPackage;
     },
     getInfectionPackage : function(){
-        return this.infectionPackage; 
+        return this.infectionPackage;
     }
 };
 
@@ -683,6 +664,21 @@ Game.EntityMixin.CellStateInformation = {
         this.raiseEntityEvent('takeTurn', null);
     }
 
+};
+
+Game.EntityMixin.Avatar = {
+    META: {
+        mixinName: 'Avatar',
+        mixinGroup: 'Avatar',
+        listeners: {
+            'childInfected': function (evtData) {
+                console.log(this.childrenCells.size);
+                if (this.childrenCells.size <= 0) {
+                    Game.switchUiMode(Game.UIMode.gameLose);
+                }
+            }
+        }
+    },
 };
 
 Game.EntityMixin.Growable = {

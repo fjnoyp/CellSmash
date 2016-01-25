@@ -339,11 +339,11 @@ Game.UIMode.gamePlay = {
         var map = this.getMap();
 
 
-        //map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover ); 
+        //map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover );
 
- 
+
         map.createEntityRandomPos( 25, Game.creationFormats.groupInfector );
-        
+
         Game.creationFormats.assassinSwarm.fg = '#00FFFF';
         map.createEntityRandomPos( 4, Game.creationFormats.clumpSwarmer );
 
@@ -353,9 +353,9 @@ Game.UIMode.gamePlay = {
         map.createEntityRandomPos( 20, Game.creationFormats.flytrap );
         map.createEntityRandomPos( 35, Game.creationFormats.wanderer );
 
-        //our cells 
+        //our cells
         Game.creationFormats.cellFollower.parentCell  = avatar;
-        Game.creationFormats.cellFollower.targetEntity = avatar; 
+        Game.creationFormats.cellFollower.targetEntity = avatar;
         map.createEntityAroundPos( avatar.getPos(), 10, 20, Game.creationFormats.cellFollower );
 
 
@@ -366,11 +366,11 @@ Game.UIMode.gamePlay = {
         //children cells
         Game.creationFormats.cellFollower.parentCell = parentCell;
         Game.creationFormats.cellFollower.targetEntity = parentCell;
-        Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg; 
-        map.createEntityAroundPos( parentCell.getPos(), 10, 20, Game.creationFormats.cellFollower ); 
+        Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg;
+        map.createEntityAroundPos( parentCell.getPos(), 10, 20, Game.creationFormats.cellFollower );
 
 
-        map.createEntityAroundPos( map.getRandomWalkableLocation(), 40, 10, Game.creationFormats.corrupter ); 
+        map.createEntityAroundPos( map.getRandomWalkableLocation(), 40, 10, Game.creationFormats.corrupter );
 
 
 
