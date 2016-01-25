@@ -311,7 +311,7 @@ Game.CellMoveStrategies = {
 
     "CircleSafely" : {
         getMoveDeltas: function () {
-            var tries = 500;
+            var tries = 100;
             var deltas, danger;
             do {
                 deltas = Game.CellMoveStrategies._circleAround(
@@ -496,29 +496,25 @@ Game.EntityMixin.CellController = {
         listeners: {
             //pass cell change event to all children cells
             'cellChange': function(evtData) {
-                if (evtData.keyPress === 'q') {
-                    this.curMoveStrategy = Game.CellMoveStrategies["ClusterAround"];
-                }
-                else if (evtData.keyPress === 'e') {
-                    this.curMoveStrategy = Game.CellMoveStrategies["CircleAround"];
-                }
-                else if (evtData.keyPress === 'r') {
-                    this.curMoveStrategy = Game.CellMoveStrategies["ClusterMove"];
-                }
-                else if (evtData.keyPress === 't') {
-                    this.curMoveStrategy = Game.CellMoveStrategies["NoMove"];
-                }
-                else if (evtData.keyPress === 'z') {
-                    this.curMoveStrategy = Game.CellMoveStrategies["AssassinSwarm"];
+                switch (evtData.keyPress) {
+                    case 'q':
+                        this.pushStrategy("ClusterAround");
+                        break;
+                    case 'e':
+                        this.pushStrategy("CircleAround");
+                        break;
+                    case 'r':
+                        this.pushStrategy("ClusterMove");
+                        break;
+                    case 't':
+                        this.pushStrategy("NoMove", 5);
+                        break;
+                    case "z":
+                        this.pushStrategy("AssassinSwarm");
+                        break;
                 }
 
-                evtData = {};
-                evtData.moveStrategy = this.curMoveStrategy;
-
-                this.childrenCells.forEach(function (child) {
-                    child.raiseEntityEvent('cellChange', evtData);
-                });
-
+                this.updateMoveStrategies();
             },
         },
         init: function(template){
@@ -526,6 +522,28 @@ Game.EntityMixin.CellController = {
         },
     },
     childrenCells: null,
+    moveStrategyStack: [["CircleAround", -1]],
+    updateMoveStrategies: function () {
+        var strategy = Game.CellMoveStrategies[this.moveStrategyStack[0][0]];
+        this.childrenCells.forEach(function (child) {
+            child.raiseEntityEvent('cellChange', {moveStrategy: strategy});
+        });
+    },
+    pushStrategy: function (strat, dur) {
+        dur = dur || -1;
+        if (dur < 0) {
+            this.moveStrategyStack = [[strat, dur]];
+        }
+        else {
+            this.moveStrategyStack.unshift([strat, dur]);
+        }
+    },
+    decrementStrategy: function () {
+        if (!this.moveStrategyStack[0][1]--) {
+            this.moveStrategyStack.shift();
+            this.updateMoveStrategies();
+        }
+    },
     curMoveStrategy: Game.CellMoveStrategies["CircleAround"],
 
     //WARNING NOTE EXTRA REFERENCE, POSSIBLE MEMORY LEAK WITHOUT EXPLICIT REMOVAL
