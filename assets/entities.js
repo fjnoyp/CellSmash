@@ -47,7 +47,7 @@ Game.creationFormats.test = {entityType: 'cellController', fg : '#D8BFD8', chr :
 
 Game.creationFormats.cellFollower = {entityType: 'cell', fg : '#66FF33', chr : '#', moveStrategy : "CircleAround"};
 
-Game.creationFormats.cellLeader = {entityType: 'cellController', fg : '#66FF33', chr : '@', moveStrategy : "WanderAround", setIsInfectable : false};
+Game.creationFormats.cellLeader = {entityType: 'cellController', fg : '#66FF33', chr : '@', moveStrategy : "SwarmWhenWeak", setIsInfectable : false};
 
 Game.creationFormats.rover = {entityType: 'cell', fg : '#FF7F50', chr : 'r', moveStrategy : "LocalMower"};
 
