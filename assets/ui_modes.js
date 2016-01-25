@@ -223,6 +223,7 @@ Game.UIMode.gamePlay = {
                 case "e":
                 case "r":
                 case "t":
+                case "c":
                 case "z":
                     this.getAvatar().raiseEntityEvent("cellChange", {keyPress: pressedKey});
                     break;

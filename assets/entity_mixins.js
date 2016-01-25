@@ -512,6 +512,9 @@ Game.EntityMixin.CellController = {
                     case 't':
                         this.pushStrategy("NoMove", 20);
                         break;
+                    case "c":
+                        this.pushStrategy("OpportunisticMurder", 20);
+                        break;
                     case "z":
                         this.pushStrategy("AssassinSwarm");
                         break;
