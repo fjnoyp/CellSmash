@@ -294,7 +294,7 @@ Game.CellMoveStrategies = {
             var murder = Game.CellMoveStrategies._moveToInfect.call(this, this.getPos());
             if (murder) return murder;
 
-            var tries = 100;
+            var tries = 10;
             var deltas, danger;
             do {
                 deltas = Game.CellMoveStrategies._circleAround(
@@ -494,6 +494,9 @@ Game.EntityMixin.CellController = {
         mixinName: 'CellController',
         mixinGroup: 'Cell',
         listeners: {
+            'takeTurn': function () {
+                this.decrementStrategy();
+            },
             //pass cell change event to all children cells
             'cellChange': function(evtData) {
                 switch (evtData.keyPress) {
@@ -507,7 +510,7 @@ Game.EntityMixin.CellController = {
                         this.pushStrategy("ClusterMove");
                         break;
                     case 't':
-                        this.pushStrategy("NoMove", 5);
+                        this.pushStrategy("NoMove", 20);
                         break;
                     case "z":
                         this.pushStrategy("AssassinSwarm");
@@ -519,11 +522,13 @@ Game.EntityMixin.CellController = {
         },
         init: function(template){
             this.childrenCells = new Set();
+            this.moveStrategyStack = [["CircleAround", -1]];
         },
     },
     childrenCells: null,
-    moveStrategyStack: [["CircleAround", -1]],
+    moveStrategyStack: null,
     updateMoveStrategies: function () {
+        console.log("update move: " + this.moveStrategyStack[0][0]);
         var strategy = Game.CellMoveStrategies[this.moveStrategyStack[0][0]];
         this.childrenCells.forEach(function (child) {
             child.raiseEntityEvent('cellChange', {moveStrategy: strategy});
@@ -531,6 +536,7 @@ Game.EntityMixin.CellController = {
     },
     pushStrategy: function (strat, dur) {
         dur = dur || -1;
+        console.log(dur);
         if (dur < 0) {
             this.moveStrategyStack = [[strat, dur]];
         }
@@ -539,7 +545,8 @@ Game.EntityMixin.CellController = {
         }
     },
     decrementStrategy: function () {
-        if (!this.moveStrategyStack[0][1]--) {
+        if (this.moveStrategyStack[0][1] < 0) return;
+        if (--this.moveStrategyStack[0][1] < 0) {
             this.moveStrategyStack.shift();
             this.updateMoveStrategies();
         }
@@ -565,9 +572,9 @@ Game.EntityMixin.CellInfect = {
 
                 //infect can mean changing behavior and/or appearance of other cell, other cell can also have resistances, cellInformation will probably expose all relevant information about cell, method set to allow for this
                 //evtData.receipient.raiseEntityEvent('infect',);
-                if (this.canInfect){
+                if (this.canInfect) {
                     var recipient = evtData.recipient;
-                    if (recipient.setAppearance && !recipient.isSameCellType(this) && recipient.getIsInfectable()) {
+                    if (recipient.isInfectable && !recipient.isSameCellType(this)) {
                         //always copy same apperance regardless of infection package
                         recipient.setAppearance(this.getFg(), this.getChar());
 
@@ -712,6 +719,8 @@ Game.EntityMixin.EnemyAvatar = {
             }
         }
     },
+
+    isInfectable: false,
 };
 
 
@@ -727,6 +736,8 @@ Game.EntityMixin.Avatar = {
             }
         }
     },
+
+    isInfectable: false,
 };
 
 Game.EntityMixin.Growable = {
