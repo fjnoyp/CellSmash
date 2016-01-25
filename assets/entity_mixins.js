@@ -287,7 +287,13 @@ Game.CellMoveStrategies = {
     "OpportunisticMurder" : {
         getMoveDeltas: function () {
             var moveDeltas = Game.CellMoveStrategies._moveToInfect.call(this,this.getPos());
-            return moveDeltas || this.getMoveDeltas();
+            if (moveDeltas) {
+              this.raiseEntityEvent('cellChange', {
+                moveStrategy: "NoMove",
+              });
+              return moveDeltas;
+            }
+            return this.getMoveDeltas();
         },
 
         "MurderSafely" : function () {
