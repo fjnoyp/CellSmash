@@ -327,20 +327,14 @@ Game.UIMode.gamePlay = {
     }
   },
     setupNewGame: function () {
-    this.setMap(new Game.Map('blankMap'));
-        this.setAvatar(Game.EntityGenerator.create('avatar'));
+        var map = new Game.Map('blankMap');
+        this.setMap(map);
 
-        this.getMap().addEntity(this.getAvatar(),this.getMap().getRandomWalkableLocation());
+        var avatar = Game.EntityGenerator.create('avatar');
+        this.setAvatar(avatar);
+
+        this.getMap().addEntity(avatar, map.getRandomWalkableLocation());
         this.setCameraToAvatar();
-
-        //CREATE NEW MAP
-        //ADD ENTITIES TO MAP
-        var avatar = this.getAvatar();
-        var map = this.getMap();
-
-
-        //map.createEntityAroundPos( {x:30,y:30}, 15, 15, Game.creationFormats.rover );
-
 
         map.createEntityRandomPos( 25, Game.creationFormats.groupInfector );
 
