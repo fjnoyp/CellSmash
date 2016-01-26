@@ -715,33 +715,25 @@ Game.EntityMixin.Avatar = {
             },
             //pass cell change event to all children cells
             'cellChange': function(evtData) {
-                switch (evtData.keyPress) {
-                    case 'q':
-                        this.pushStrategy("ClusterAround");
-                        break;
-                    case 'e':
-                        this.pushStrategy("CircleAround");
-                        break;
-                    case 'r':
-                        this.pushStrategy("ClusterMove");
-                        break;
-                    case 't':
-                        this.pushStrategy("NoMove", 20);
-                        break;
-                    case "c":
-                        this.pushStrategy("MurderSafely", 2);
-                        break;
-                    case "z":
-                        this.pushStrategy("AssassinSwarm");
-                        break;
-                }
+                if (!evtData.keyPress) return;
+                var args = this.changeStrategyMap[evtData.keyPress];
 
-                this.updateMoveStrategies();
+                if (args) {
+                    this.pushStrategy.apply(this, args);
+                    this.updateMoveStrategies();
+                }
             },
-        }
+        },
     },
 
     isInfectable: false,
+    changeStrategyMap: {
+        q: ["ClusterAround"],
+        e: ["CircleAround"],
+        t: ["NoMove", 20],
+        c: ["MurderSafely", 2],
+        z: ["AssassinSwarm"],
+    },
 };
 
 Game.EntityMixin.Growable = {
