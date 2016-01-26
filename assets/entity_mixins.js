@@ -495,31 +495,6 @@ Game.EntityMixin.CellController = {
             'takeTurn': function () {
                 this.decrementStrategy();
             },
-            //pass cell change event to all children cells
-            'cellChange': function(evtData) {
-                switch (evtData.keyPress) {
-                    case 'q':
-                        this.pushStrategy("ClusterAround");
-                        break;
-                    case 'e':
-                        this.pushStrategy("CircleAround");
-                        break;
-                    case 'r':
-                        this.pushStrategy("ClusterMove");
-                        break;
-                    case 't':
-                        this.pushStrategy("NoMove", 20);
-                        break;
-                    case "c":
-                        this.pushStrategy("MurderSafely", 2);
-                        break;
-                    case "z":
-                        this.pushStrategy("AssassinSwarm");
-                        break;
-                }
-
-                this.updateMoveStrategies();
-            },
         },
         init: function(template){
             this.childrenCells = new Set();
@@ -737,7 +712,32 @@ Game.EntityMixin.Avatar = {
                 if (this.childrenCells.size <= 0) {
                     Game.switchUiMode(Game.UIMode.gameLose);
                 }
-            }
+            },
+            //pass cell change event to all children cells
+            'cellChange': function(evtData) {
+                switch (evtData.keyPress) {
+                    case 'q':
+                        this.pushStrategy("ClusterAround");
+                        break;
+                    case 'e':
+                        this.pushStrategy("CircleAround");
+                        break;
+                    case 'r':
+                        this.pushStrategy("ClusterMove");
+                        break;
+                    case 't':
+                        this.pushStrategy("NoMove", 20);
+                        break;
+                    case "c":
+                        this.pushStrategy("MurderSafely", 2);
+                        break;
+                    case "z":
+                        this.pushStrategy("AssassinSwarm");
+                        break;
+                }
+
+                this.updateMoveStrategies();
+            },
         }
     },
 
