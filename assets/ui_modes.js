@@ -81,6 +81,8 @@ Game.UIMode.gamePlay = {
         display.drawText(1,ro++, "avatar x: " + this.getAvatar().getX());
         display.drawText(1,ro++, "avatar y: " + this.getAvatar().getY());
         display.drawText(1,ro++, "Swarm:    " + avatar.childrenCells.size);
+        ro++;
+        display.drawText(1,ro++, "Survived: " + avatar.survived);
         display.drawText(1,ro++, "Score:    " + avatar.survived);
 
         ro += 2;
@@ -242,16 +244,29 @@ Game.UIMode.gameWin = {
 
 Game.UIMode.gameLose = {
     enter: function () {
-        console.log('game losing');
+        var avatar = Game.UIMode.gamePlay.getAvatar();
+        var state = this.state = {
+            turns: avatar.survived,
+            score: avatar.score,
+            lock: true
+        }
+        setTimeout(function () {
+            delete state.lock;
+        }, 1000);
     },
     exit: function () {
     },
     render: function (display) {
-        var fg = Game.UIMode.DEFAULT_COLOR_FG;
-        var bg = Game.UIMode.DEFAULT_COLOR_BG;
-        display.drawText(1,1,"You lost :(",fg,bg);
+        display.drawText(1,1,"You lost :(");
+        display.drawText(1,3,
+                "You survived " + this.state.turns + " turns, " +
+                "and accumulated " + this.state.score + " points " +
+                "while your cells lived.");
+        display.drawText(1,5,"Press any key to continue");
     },
     handleInput: function (inputType,inputData) {
-        Game.Message.clear();
-    }
+        if (this.state.lock) return;
+        Game.switchUiMode(Game.UIMode.gameStart);
+    },
+    state: {},
 };
