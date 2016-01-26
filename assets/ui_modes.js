@@ -238,7 +238,10 @@ Game.UIMode.gameWin = {
 
 Game.UIMode.gameLose = {
     enter: function () {
-        console.log('game losing');
+        var lock = this.lock = {};
+        setTimeout(function () {
+            lock.done = true;
+        }, 1000);
     },
     exit: function () {
     },
@@ -248,6 +251,8 @@ Game.UIMode.gameLose = {
         display.drawText(1,1,"You lost :(",fg,bg);
     },
     handleInput: function (inputType,inputData) {
-        Game.Message.clear();
-    }
+        if (!this.lock.done) return;
+        Game.switchUiMode(Game.UIMode.gameStart);
+    },
+    lock: {}
 };
