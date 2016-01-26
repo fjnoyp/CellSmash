@@ -23,12 +23,14 @@ Game.EntityGenerator.learn({
     mixins: ["WalkerCorporeal", "CellController", "CellStateInformation", "EnemyAvatar", "CellMove"]
 });
 
+/*
 Game.EntityGenerator.learn({
     name: 'growable',
     chr:'^',
     fg:'#ffff00',
     mixins: ["CellStateInformation", "Growable"]
 });
+*/
 
 Game.creationFormats = {};
 Game.creationFormats.flytrap = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};

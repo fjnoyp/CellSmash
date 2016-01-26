@@ -84,10 +84,6 @@ var Game = {
 
         var timeBlock = {
             act: function(){
-
-                var done = null;
-                var promise = { then: function(cb) { done = cb; } }
-
                 //animate all actors every n time
                 if(Game.step >= 1){
                     Game.Actors.forEach(
@@ -102,18 +98,11 @@ var Game = {
                 }
                 Game.refresh();
 
-                setTimeout(function(){ done(); }, 25);
-
-
-                /*
-                if( Math.random() > .5){
-                    setTimeout(function(){ done(); }, 200);
-                }
-                else{
-                    setTimeout(function(){ done(); }, 1000);
-                }
-                */
-                return promise;
+                return {
+                    then: function (unlock) {
+                        setTimeout(unlock, 25);
+                    }
+                };
             }
         }
         console.log("intilaizeing timing engine");
