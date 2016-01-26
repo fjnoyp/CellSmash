@@ -38,6 +38,7 @@ var Game = {
   Scheduler: null,
     TimeEngine: null,
     Actors: null, //list of all actors
+        RANDOM_SEED_KEY: 'gameRandomSeed',
 
   init: function() {
     this._game = this;
@@ -127,8 +128,7 @@ var Game = {
   },
   setRandomSeed: function (s) {
     this._randomSeed = s;
-    console.log("using random seed "+this._randomSeed);
-    this.DATASTORE[Game.UIMode.gamePersistence.RANDOM_SEED_KEY] = this._randomSeed;
+    this.DATASTORE[this.RANDOM_SEED_KEY] = this._randomSeed;
     ROT.RNG.setSeed(this._randomSeed);
   },
 

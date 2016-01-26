@@ -16,49 +16,6 @@ Game.UIMode.gameStart = {
         display.drawText(1,1,"game start",fg,bg);
         display.drawText(1,3,"press any key to continue",fg,bg);
     },
-    handleInput: function (inputType,inputData) {
-        if (inputData.charCode !== 0) { // ignore the various modding keys - control, shift, etc.
-            Game.switchUiMode(Game.UIMode.gamePersistence);
-        }
-    }
-};
-
-Game.UIMode.gamePersistence = {
-    RANDOM_SEED_KEY: 'gameRandomSeed',
-    enter: function () {
-        Game.refresh();
-        //Game.TimeEngine.start();
-        //console.log('game persistence');
-    },
-    exit: function () {
-        Game.refresh();
-    },
-    render: function (display) {
-        var fg = Game.UIMode.DEFAULT_COLOR_FG;
-        var bg = Game.UIMode.DEFAULT_COLOR_BG;
-        display.drawText(1,3,"press S to save the current game, L to load the saved game, or N start a new one",fg,bg);
-        //    console.log('TODO: check whether local storage has a game before offering restore');
-        //    console.log('TODO: check whether a game is in progress before offering restore');
-    },
-    handleInput: function (inputType,inputData) {
-        if (inputType == 'keypress') {
-            var inputChar = String.fromCharCode(inputData.charCode);
-            if (inputChar == 'S') { // ignore the various modding keys - control, shift, etc.
-                this.saveGame();
-            } else if (inputChar == 'L') {
-                this.restoreGame();
-            } else if (inputChar == 'N') {
-                this.newGame();
-            }
-        } else if (inputType == 'keydown') {
-            if (inputData.keyCode == 27) { // 'Escape'
-                Game.switchUiMode(Game.UIMode.gamePlay);
-            }
-        }
-    },
-    //dummied out
-    saveGame: function () {},
-    restoreGame: function () {},
     newGame: function () {
         Game.DATASTORE = {};
         Game.DATASTORE.MAP = {};
@@ -68,53 +25,11 @@ Game.UIMode.gamePersistence = {
         Game.UIMode.gamePlay.setupNewGame();
         Game.switchUiMode(Game.UIMode.gamePlay);
     },
-    localStorageAvailable: function () { // NOTE: see https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
-        try {
-            var x = '__storage_test__';
-            window.localStorage.setItem( x, x);
-            window.localStorage.removeItem(x);
-            return true;
+    handleInput: function (inputType,inputData) {
+        if (inputData.charCode !== 0) { // ignore the various modding keys - control, shift, etc.
+            this.newGame(); 
+            Game.switchUiMode(Game.UIMode.gamePlay); 
         }
-        catch(e) {
-            Game.Message.send('Sorry, no local data storage is available for this browser');
-            return false;
-        }
-    },
-    BASE_toJSON: function(state_hash_name) {
-        var state = this.attr;
-        if (state_hash_name) {
-            state = this[state_hash_name];
-        }
-        var json = JSON.stringify(state);
-
-        // var json = {};
-        // for (var at in state) {
-        //   if (state.hasOwnProperty(at)) {
-        //     if (state[at] instanceof Object && 'toJSON' in state[at]) {
-        //       json[at] = state[at].toJSON();
-        //     } else {
-        //       json[at] = state[at];
-        //     }
-        //   }
-        // }
-        return json;
-    },
-    BASE_fromJSON: function (json,state_hash_name) {
-        console.log("base from json");
-        var using_state_hash = 'attr';
-        if (state_hash_name) {
-            using_state_hash = state_hash_name;
-        }
-        this[using_state_hash] = JSON.parse(json);
-        // for (var at in this[using_state_hash]) {
-        //   if (this[using_state_hash].hasOwnProperty(at)) {
-        //     if (this[using_state_hash][at] instanceof Object && 'fromJSON' in this[using_state_hash][at]) {
-        //       this[using_state_hash][at].fromJSON(json[at]);
-        //     } else {
-        //       this[using_state_hash][at] = json[at];
-        //     }
-        //   }
-        // }
     }
 };
 
@@ -228,17 +143,6 @@ Game.UIMode.gamePlay = {
                 case "z":
                     this.getAvatar().raiseEntityEvent("cellChange", {keyPress: pressedKey});
                     break;
-
-                default:
-                    if (inputType == 'keydown') {
-                        if (inputData.keyCode == 27) { // 'Escape'
-                            Game.switchUiMode(Game.UIMode.gameLose);
-                        }
-                        else if (inputData.keyCode == 187) { // '='
-                            Game.switchUiMode(Game.UIMode.gamePersistence);
-                        }
-                    }
-                    break;
             }
 
             if (tookTurn) {
@@ -283,12 +187,6 @@ Game.UIMode.gamePlay = {
 
         //map.createEntityAroundPos( map.getRandomWalkableLocation(), 40, 10, Game.creationFormats.corrupter );
     },
-    toJSON: function() {
-        return Game.UIMode.gamePersistence.BASE_toJSON.call(this);
-    },
-    fromJSON: function (json) {
-        Game.UIMode.gamePersistence.BASE_fromJSON.call(this,json);
-    }
 };
 
 Game.UIMode.gameWin = {
