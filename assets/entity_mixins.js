@@ -702,6 +702,9 @@ Game.EntityMixin.Avatar = {
         mixinName: 'Avatar',
         mixinGroup: 'Avatar',
         listeners: {
+            'takeTurn': function () {
+                this.survived += this.childrenCells.size;
+            },
             'childInfected': function (evtData) {
                 if (this.childrenCells.size <= 0) {
                     Game.switchUiMode(Game.UIMode.gameLose);
@@ -733,7 +736,8 @@ Game.EntityMixin.Avatar = {
     strategyUses: {
         AssassinSwarm: 10,
         MurderSafely: 5,
-    }
+    },
+    survived: 0,
 };
 
 Game.EntityMixin.Growable = {

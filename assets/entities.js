@@ -3,27 +3,22 @@ Game.EntityGenerator = new Game.Generator('entities',Game.Entity);
 Game.EntityGenerator.learn({
     name: 'avatar',
     chr:'@',
-    fg:'#F0F8FF',
+    fg: 'black',
+    bg: 'lightgreen',
     maxHp: 10,
     mixins: ["WalkerCorporeal", "CellController", "CellStateInformation", "Avatar"]
 });
 
 Game.EntityGenerator.learn({
-    name: 'marker',
-    chr:'*',
-    fg:'#ffff00'
-});
-
-Game.EntityGenerator.learn({
     name: 'cell',
     chr:'#',
-    fg:'#ffff00',
+    fg: 'lightgreen',
     mixins: ["CellMove", "WalkerCorporeal", "CellStateInformation", "CellInfect"]
 });
 
 Game.EntityGenerator.learn({
     name: 'cellController',
-    chr:'@',
+    chr: '@',
     fg:'#ffff00',
     mixins: ["WalkerCorporeal", "CellController", "CellStateInformation", "EnemyAvatar", "CellMove"]
 });
@@ -42,8 +37,7 @@ Game.creationFormats.wanderer = {entityType: 'cell', fg : '#CCFFFF', chr : 'r', 
 Game.creationFormats.localInfector = {entityType: 'cell', fg : '#CCFF33', chr : ';', moveStrategy : "OpportunisticMurder"};
 
 Game.creationFormats.cellFollower = {entityType: 'cell', fg : '#66FF33', chr : '#', moveStrategy : "CircleAround"};
-
-Game.creationFormats.cellLeader = {entityType: 'cellController', fg : '#66FF33', chr : '@', moveStrategy : "SwarmWhenWeak", setIsInfectable : false};
+Game.creationFormats.cellLeader = {entityType: 'cellController', bg : '#66FF33', chr : '@', moveStrategy : "SwarmWhenWeak", setIsInfectable : false};
 
 Game.creationFormats.rover = {entityType: 'cell', fg : '#FF7F50', chr : 'r', moveStrategy : "LocalMower"};
 

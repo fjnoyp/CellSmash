@@ -80,25 +80,9 @@ Game.UIMode.gamePlay = {
         display.drawText(1,ro++, "avatar x: " + this.getAvatar().getX());
         display.drawText(1,ro++, "avatar y: " + this.getAvatar().getY());
         display.drawText(1,ro++, "Swarm:    " + avatar.childrenCells.size);
+        display.drawText(1,ro++, "Score:    " + avatar.survived);
 
-        var ro = 5;
-        display.drawText(1,ro++, "Orders given:");
-        avatar.moveStrategyStack.forEach(function (s) {
-            if (ro > 9) return;
-            var name = Game.CellMoveStrategies[s[0]].summary || s[0];
-            if (s[1] < 0) {
-                display.drawText(3,ro++, name);
-            }
-            else {
-                var turn = s[1] === 1 ? " turn)" : " turns)";
-                display.drawText(3,ro++, name + " (" + s[1] + turn);
-            }
-        });
-        if (ro > 9) {
-            display.drawText(3,ro, "[... more ...]");
-        }
-
-        var ro = 12;
+        ro += 2;
         display.drawText(1,ro++, "Commands:");
         display.drawText(3,ro++, "w↑, a←, s↓, d→");
         //display.drawText(3,ro++, "h←, j↓, k↑, l→");
@@ -115,6 +99,20 @@ Game.UIMode.gamePlay = {
             }
             display.drawText(3,ro++, desc);
         });
+
+        var ro = 20;
+        display.drawText(1,ro++, "Orders given:");
+        avatar.moveStrategyStack.forEach(function (s) {
+            var name = Game.CellMoveStrategies[s[0]].summary || s[0];
+            if (s[1] < 0) {
+                display.drawText(3,ro++, name);
+            }
+            else {
+                var turn = s[1] === 1 ? " turn)" : " turns)";
+                display.drawText(3,ro++, name + " (" + s[1] + turn);
+            }
+        });
+
     },
     moveAvatar: function (dx,dy) {
         if (this.getAvatar().tryWalk(this.getMap(),dx,dy)) {
