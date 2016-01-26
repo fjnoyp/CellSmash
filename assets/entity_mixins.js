@@ -703,7 +703,8 @@ Game.EntityMixin.Avatar = {
         mixinGroup: 'Avatar',
         listeners: {
             'takeTurn': function () {
-                this.survived += this.childrenCells.size;
+                this.survived++;
+                this.score += this.childrenCells.size;
             },
             'childInfected': function (evtData) {
                 if (this.childrenCells.size <= 0) {
@@ -737,6 +738,7 @@ Game.EntityMixin.Avatar = {
         AssassinSwarm: 10,
         MurderSafely: 5,
     },
+    score: 0,
     survived: 0,
 };
 
