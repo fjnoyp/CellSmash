@@ -13,8 +13,9 @@ Game.UIMode.gameStart = {
     render: function (display) {
         var fg = Game.UIMode.DEFAULT_COLOR_FG;
         var bg = Game.UIMode.DEFAULT_COLOR_BG;
-        display.drawText(1,1,"game start",fg,bg);
-        display.drawText(1,3,"press any key to continue",fg,bg);
+        display.drawText(1,1,"Welcome to CellDOM",fg,bg);
+        display.drawText(1,3,"n for new game",fg,bg);
+        display.drawText(1,5,"t for tutorial",fg,bg);
     },
     newGame: function () {
         Game.DATASTORE = {};
@@ -205,8 +206,7 @@ Game.UIMode.gamePlay = {
 
         //other cell groups
 
-        /*
-        //parent cell
+         //parent cell
         Game.creationFormats.cellLeader.fg = '#F345CA';
         var parentCell = map.createEntity(map.getRandomWalkableLocation(), Game.creationFormats.cellLeader );
 
@@ -215,8 +215,7 @@ Game.UIMode.gamePlay = {
         Game.creationFormats.cellFollower.targetEntity = parentCell;
         Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg;
         map.createEntityAroundPos( parentCell.getPos(), 30, 10, Game.creationFormats.cellFollower );
-        */
-
+ 
         //map.createEntityAroundPos( map.getRandomWalkableLocation(), 40, 10, Game.creationFormats.corrupter );
     },
 };
