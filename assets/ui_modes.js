@@ -26,9 +26,12 @@ Game.UIMode.gameStart = {
         Game.switchUiMode(Game.UIMode.gamePlay);
     },
     handleInput: function (inputType,inputData) {
-        if (inputData.charCode !== 0) { // ignore the various modding keys - control, shift, etc.
+        if (inputData.charCode == 110) { // ignore the various modding keys - control, shift, etc.
             this.newGame(); 
             Game.switchUiMode(Game.UIMode.gamePlay); 
+        }
+        else if(inputData.charCode == 116){
+            window.location = "tutorial.html"; 
         }
     }
 };
@@ -191,12 +194,20 @@ Game.UIMode.gamePlay = {
         Game.creationFormats.cellFollower.targetEntity = avatar;
         map.createEntityAroundPos( avatar.getPos(), 10, 10, Game.creationFormats.cellFollower );
 
+
+
+        //other cells 
         map.createEntityRandomPos( 25, Game.creationFormats.groupInfector );
-        map.createEntitiesAroundRandomPos( 2, 4, 3, Game.creationFormats.clumpSwarmer );
+        map.createEntitiesAroundRandomPos( 6, 4, 3, Game.creationFormats.clumpSwarmer );
+        map.createEntitiesAroundRandomPos( 2, 10, 5, Game.creationFormats.corrupter );
+        
         map.createEntityRandomPos( 20, Game.creationFormats.flytrap );
         map.createEntityRandomPos( 35, Game.creationFormats.wanderer );
+        //map.createEntitiesAroundRandomPos( 2, 4, 3, Game.creationFormats.assassinSwarm );
 
+        //other cell groups
 
+        /*
         //parent cell
         Game.creationFormats.cellLeader.fg = '#F345CA';
         var parentCell = map.createEntity(map.getRandomWalkableLocation(), Game.creationFormats.cellLeader );
@@ -206,7 +217,7 @@ Game.UIMode.gamePlay = {
         Game.creationFormats.cellFollower.targetEntity = parentCell;
         Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg;
         map.createEntityAroundPos( parentCell.getPos(), 30, 10, Game.creationFormats.cellFollower );
-
+        */
 
         //map.createEntityAroundPos( map.getRandomWalkableLocation(), 40, 10, Game.creationFormats.corrupter );
     },

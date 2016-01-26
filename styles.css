@@ -1,0 +1,21 @@
+body {
+    background-color: black; 
+}
+
+img {
+    border: 5px solid white; 
+}
+
+h1 {
+    margin: 10 0 0 0; 
+    color: white; 
+}
+
+h3 {
+    margin: 100 0 0 0;
+    color: white; 
+}
+
+p{
+    color: white; 
+}
