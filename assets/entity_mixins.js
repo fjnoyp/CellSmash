@@ -444,7 +444,6 @@ Game.EntityMixin.WalkerCorporeal = {
         }
         var targetTile = map.getTile(targetX,targetY);
         if (targetTile.isWalkable()) {
-            // console.log('tryWalk - walkable: '+this.getName());
             this.setPos(targetX,targetY);
             var myMap = this.getMap();
             if (myMap) {
@@ -509,7 +508,6 @@ Game.EntityMixin.CellController = {
     },
     pushStrategy: function (strat, dur) {
         dur = dur || -1;
-        console.log(dur);
         if (dur < 0) {
             this.moveStrategyStack = [[strat, dur]];
         }
