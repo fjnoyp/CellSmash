@@ -179,14 +179,6 @@ Game.Map.createEntity = function(x,y, entityName, initMethodCalls){
 };
 */
 
-Game.Map.prototype.toJSON = function () {
-  var json = Game.UIMode.gamePersistence.BASE_toJSON.call(this);
-  return json;
-};
-Game.Map.prototype.fromJSON = function (json) {
-  Game.UIMode.gamePersistence.BASE_fromJSON.call(this,json);
-};
-
 Game.Map.prototype.createEntity = function(pos, creationFormat) {
     var newEntity = Game.EntityGenerator.create(creationFormat.entityType);
 
