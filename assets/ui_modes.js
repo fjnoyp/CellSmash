@@ -193,7 +193,6 @@ Game.UIMode.gamePlay = {
 
         map.createEntityRandomPos( 25, Game.creationFormats.groupInfector );
         map.createEntitiesAroundRandomPos( 2, 4, 3, Game.creationFormats.clumpSwarmer );
-        map.createEntitiesAroundRandomPos( 2, 4, 3, Game.creationFormats.assassinSwarm );
         map.createEntityRandomPos( 20, Game.creationFormats.flytrap );
         map.createEntityRandomPos( 35, Game.creationFormats.wanderer );
 
