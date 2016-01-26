@@ -4,7 +4,7 @@ Game.UIMode.DEFAULT_COLOR_BG = '#000';
 
 Game.UIMode.gameStart = {
     enter: function () {
-        Game.Message.send("Welcome to WSRL");
+        Game.Message.send("Welcome to CellDOM");
         Game.refresh();
     },
     exit: function () {
