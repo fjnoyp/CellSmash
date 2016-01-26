@@ -250,7 +250,8 @@ Game.CellMoveStrategies = {
             //get enemy entity whose angle to us is closest to this.moveAngle 
             if(enemies.length > 0){
                 if(!this.targetEntity || this.targetEntity.isSameCellType(this)){
-                    this.targetEntity = enemies.random(); 
+                    this.targetEntity = enemies.random();
+                    this.moveAngle = Game.util.getAngle( this.targetEntity.getPos(), this.getPos()); 
                 }
 
                 var curAngDif = Game.util.getAngle( this.targetEntity.getPos(), this.getPos()) - this.moveAngle; 

@@ -196,7 +196,7 @@ Game.UIMode.gamePlay = {
 
         map.createEntityAroundPos( avatar.getPos(), 20, 3, Game.creationFormats.cellFollower );
 
-        map.createEntityRandomPos( 10, Game.creationFormats.directionalSwarmer );
+        map.createEntityRandomPos( 15, Game.creationFormats.directionalSwarmer );
         map.createEntityRandomPos( 10, Game.creationFormats.wanderer );
 
         //other cells
