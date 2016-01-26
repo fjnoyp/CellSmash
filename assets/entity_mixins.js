@@ -226,6 +226,64 @@ Game.CellMoveStrategies = {
         }
     },
 
+    "DirectionalSwarmer": {
+        getMoveDeltas: function() {
+            if(!this.moveAngle) this.moveAngle = 0;
+            
+            //scan for targets
+            var us = this.getPos(); 
+            var friends = [], enemies = []; 
+            for (var dx = -6; dx <= 6; dx++) {
+                for (var dy = -6; dy <= 6; dy++) {
+                    var en = this.getMap().getEntity(us.x+dx, us.y+dy);
+                    if (en && en.isInfectable) {
+                        if(en.isSameCellType(this)){
+                            friends.push(en); 
+                        }
+                        else{
+                            enemies.push(en);
+                        }
+                    }
+                }
+            }
+
+            //get enemy entity whose angle to us is closest to this.moveAngle 
+            if(enemies.length > 0){
+                if(!this.targetEntity || this.targetEntity.isSameCellType(this)){
+                    this.targetEntity = enemies.random(); 
+                }
+
+                var curAngDif = Game.util.getAngle( this.targetEntity.getPos(), this.getPos()) - this.moveAngle; 
+                curAngDif = Math.abs(curAngDif); 
+                
+                for(i = 0; i<enemies.length; i++){
+                    var thisAngDif = Game.util.getAngle( enemies[i].getPos(), this.getPos() ) - this.moveAngle; 
+                    if( Math.abs(thisAngDif - this.moveAngle) < curAngDif ){
+                        this.targetEntity = enemies[i];
+                        curAngDif = thisAngDif; 
+                    }
+                }
+
+            }
+
+            if(this.targetEntity){
+
+                if(this.targetEntity.isSameCellType(this)){
+                    this.targetEntity = null; 
+                }
+                else{
+                    //move towards targetEntity 
+                    var angDif = Game.util.getAngle( this.targetEntity.getPos(), this.getPos() );
+                    this.moveAngle += Game.util.clamp( angDif-this.moveAngle, - Math.PI/15, Math.PI/15);
+                    return {x: Math.round(Math.cos(this.moveAngle)), y: Math.round(Math.sin(this.moveAngle)) };
+                }
+            }
+
+            return {x:0, y:0}; 
+
+        }
+    },
+
     "SwarmWhenWeak": {
         getMoveDeltas: function () {
             var children = this.childrenCells;
@@ -526,7 +584,6 @@ Game.EntityMixin.CellController = {
     },
     curMoveStrategy: Game.CellMoveStrategies["CircleAround"],
 
-    //WARNING NOTE EXTRA REFERENCE, POSSIBLE MEMORY LEAK WITHOUT EXPLICIT REMOVAL
     addChildrenCell: function(cellEntity){
         this.childrenCells.add(cellEntity);
     },

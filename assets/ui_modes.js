@@ -191,11 +191,14 @@ Game.UIMode.gamePlay = {
         //our cells
         Game.creationFormats.cellFollower.parentCell  = avatar;
         Game.creationFormats.cellFollower.targetEntity = avatar;
-        map.createEntityAroundPos( avatar.getPos(), 10, 10, Game.creationFormats.cellFollower );
 
+        map.createEntityAroundPos( avatar.getPos(), 20, 3, Game.creationFormats.cellFollower );
 
+        map.createEntityRandomPos( 10, Game.creationFormats.directionalSwarmer );
+        map.createEntityRandomPos( 10, Game.creationFormats.wanderer );
 
-        //other cells 
+        //other cells
+
         map.createEntityRandomPos( 25, Game.creationFormats.groupInfector );
         map.createEntitiesAroundRandomPos( 6, 4, 3, Game.creationFormats.clumpSwarmer );
         map.createEntitiesAroundRandomPos( 2, 10, 5, Game.creationFormats.corrupter );
@@ -215,6 +218,7 @@ Game.UIMode.gamePlay = {
         Game.creationFormats.cellFollower.targetEntity = parentCell;
         Game.creationFormats.cellFollower.fg = Game.creationFormats.cellLeader.fg;
         map.createEntityAroundPos( parentCell.getPos(), 30, 10, Game.creationFormats.cellFollower );
+
  
         //map.createEntityAroundPos( map.getRandomWalkableLocation(), 40, 10, Game.creationFormats.corrupter );
     },

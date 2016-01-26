@@ -31,6 +31,9 @@ Game.EntityGenerator.learn({
 });
 
 Game.creationFormats = {};
+
+Game.creationFormats.test = {entityType: 'cell', fg : '#CCCCCC', chr : '0', moveStrategy : "NoMove"};
+
 Game.creationFormats.flytrap = {entityType: 'cell', fg : '#CC3366', chr : 'B', moveStrategy : "ClumpTogether"};
 Game.creationFormats.wanderer = {entityType: 'cell', fg : '#CCFFFF', chr : 'r', moveStrategy : "WanderAround"};
 
@@ -52,3 +55,5 @@ infectionPackage.infectionPackage.infectionPackage = infectionPackage;
 Game.creationFormats.corrupter = {entityType: 'cell', fg : '#8B008B', chr : '+', moveStrategy : "Corrupter", infectionPackage : infectionPackage};
 
 Game.creationFormats.groupInfector = {entityType: 'cell', fg : '#00FF7F', chr : '%', moveStrategy : "GroupInfector"};
+
+Game.creationFormats.directionalSwarmer = {entityType: 'cell', fg : '#D2691E', chr : 'Y', moveStrategy : "DirectionalSwarmer"};

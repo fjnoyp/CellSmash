@@ -95,6 +95,11 @@ Game.util = {
                                            );
         }
 
-    }
+    },
+
+    getAngle : function(posA, posB){
+        return Math.atan2( posA.y - posB.y,
+                           posA.x - posB.x ); 
+    }, 
 
 };
