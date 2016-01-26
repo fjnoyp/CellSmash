@@ -169,11 +169,12 @@ Game.UIMode.gamePlay = {
         var row = 8;
         display.drawText(1,7, "Orders given:");
         avatar.moveStrategyStack.forEach(function (s) {
+            var name = Game.CellMoveStrategies[s[0]].summary || s[0];
             if (s[1] < 0) {
-                display.drawText(4, row++, s[0]);
+                display.drawText(4, row++, name);
             }
             else {
-                display.drawText(4, row++, s[0] + " (" + s[1] + " turns)");
+                display.drawText(4, row++, name + " (" + s[1] + " turns)");
             }
         });
     },
@@ -263,7 +264,8 @@ Game.UIMode.gamePlay = {
         map.createEntityAroundPos( avatar.getPos(), 10, 10, Game.creationFormats.cellFollower );
 
         map.createEntityRandomPos( 25, Game.creationFormats.groupInfector );
-        map.createEntityRandomPos( 8, Game.creationFormats.clumpSwarmer );
+        map.createEntitiesAroundRandomPos( 2, 4, 3, Game.creationFormats.clumpSwarmer );
+        map.createEntitiesAroundRandomPos( 2, 4, 3, Game.creationFormats.assassinSwarm );
         map.createEntityRandomPos( 20, Game.creationFormats.flytrap );
         map.createEntityRandomPos( 35, Game.creationFormats.wanderer );
 
