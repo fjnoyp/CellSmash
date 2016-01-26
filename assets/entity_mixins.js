@@ -233,7 +233,6 @@ Game.CellMoveStrategies = {
                 var strategy = ROT.RNG.getWeightedValue({
                     ClusterAround: 5,
                     CircleSafely: children.size,
-                    AssassinSwarm: 200/children.size,
                 });
                 children.forEach(function (child) {
                     child.raiseEntityEvent('cellChange', {
