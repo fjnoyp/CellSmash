@@ -1,183 +1,117 @@
 Game.DATASTORE.MAP = {};
+Game.Map = (function () {
+    "use strict";
 
-Game.Map = function (mapTileSetName) {
+    function Map(tileset) {
+        this.id = Map.lastId++;
+        Game.DATASTORE.MAP[this.id] = this;
 
-  //console.log("setting up new map using "+mapTileSetName+" tile set");
-
-  this._tiles = Game.MapTileSets[mapTileSetName].getMapTiles();
-
-  this.attr = {
-    _id: Game.util.randomString(32),
-    _mapTileSetName: mapTileSetName,
-    _width: this._tiles.length,
-    _height: this._tiles[0].length,
-    _entitiesByLocation: {},
-      _locationsByEntity: {},
-      _oldLocationsByEntity: {}
-  };
-
-  Game.DATASTORE.MAP[this.attr._id] = this;
-};
-
-Game.Map.prototype.getId = function () {
-  return this.attr._id;
-};
-
-Game.Map.prototype.getWidth = function () {
-  return this.attr._width;
-};
-
-Game.Map.prototype.getHeight = function () {
-  return this.attr._height;
-};
-
-Game.Map.prototype.withinMapBounds = function(x_or_pos, y) {
-    var useX = x_or_pos,useY=y;
-    if (typeof x_or_pos == 'object') {
-        useX = x_or_pos.x;
-        useY = x_or_pos.y;
+        this.tiles = Game.MapTileSets[tileset].getMapTiles();
+        this.width = this.tiles.length;
+        this.height = this.tiles[0].length;
+        this.entitiesByLocation = {};
+        this.locationsByEntity = {};
+        this.oldLocationsByEntity = {};
     }
+    Map.lastId = 0;
 
-    return useX < this.getWidth() && useX >= 0 &&
-        useY < this.getHeight() && useY >= 0;
-};
+    Map.prototype.getId = function () {
+        return this.id;
+    };
+    Map.prototype.getWidth = function () {
+        return this.width;
+    };
+    Map.prototype.getHeight = function () {
+        return this.height;
+    };
 
-Game.Map.prototype.getTile = function (x_or_pos,y) {
-  var useX = x_or_pos,useY=y;
-  if (typeof x_or_pos == 'object') {
-    useX = x_or_pos.x;
-    useY = x_or_pos.y;
-  }
-  if ((useX < 0) || (useX >= this.attr._width) || (useY<0) || (useY >= this.attr._height)) {
-    return Game.Tile.nullTile;
-  }
-  return this._tiles[useX][useY] || Game.Tile.nullTile;
-};
+    Map.prototype.getTile = function (x,y) {
+        return (this.tiles[x] || [])[y] || Game.Tile.wallTile;
+    };
 
-Game.Map.prototype.addEntity = function (ent,pos) {
-    this.attr._entitiesByLocation[pos.x+","+pos.y] = ent.getId();
-    this.attr._locationsByEntity[ent.getId()] = pos.x+","+pos.y;
-    this.attr._oldLocationsByEntity[ent.getId()] = pos.x+","+pos.y;
-  ent.setMap(this);
-  ent.setPos(pos);
-};
+    Map.prototype.addEntity = function (ent, pos) {
+        this.entitiesByLocation[pos.x] = this.entitiesByLocation[pos.x] || {};
+        this.entitiesByLocation[pos.x][pos.y] = ent.getId();
 
-Game.Map.prototype.updateEntityLocation = function (ent) {
-  //console.log('updating position of '+ent.getName()+' ('+ent.getId()+')');
-  var origLoc = this.attr._locationsByEntity[ent.getId()];
-    if (origLoc) {
-        this.attr._oldLocationsByEntity[ent.getId()] = this.attr._locationsByEntity[ent.getId()];
-        this.attr._entitiesByLocation[origLoc] = undefined;
-    }
-    var pos = ent.getPos();
+        var id = ent.getId();
+        this.locationsByEntity[id] = this.oldLocationsByEntity[id] = pos;
+        ent.setMap(this);
+        ent.setPos(pos);
+    };
 
-    this.attr._entitiesByLocation[pos.x+","+pos.y] = ent.getId();
-    this.attr._locationsByEntity[ent.getId()] = pos.x+","+pos.y;
+    Map.prototype.updateEntityLocation = function (ent) {
+        var id = ent.getId();
 
+        var old = this.oldLocationsByEntity[id] = this.locationsByEntity[id];
+        delete this.entitiesByLocation[old.x][old.y];
 
+        var pos = this.locationsByEntity[id] = ent.getPos();
+        this.entitiesByLocation[pos.x] = this.entitiesByLocation[pos.x] || {};
+        this.entitiesByLocation[pos.x][pos.y] = ent.getId();
+    };
 
-};
-Game.Map.prototype.getEntity = function (x_or_pos,y) {
-  var useX = x_or_pos,useY=y;
-  if (typeof x_or_pos == 'object') {
-    useX = x_or_pos.x;
-    useY = x_or_pos.y;
-  }
-  var entId = this.attr._entitiesByLocation[useX+','+useY];
-  if (entId) { return Game.DATASTORE.ENTITY[entId]; }
-  return  false;
-};
+    Map.prototype.getEntity = function (x,y) {
+        if (!y) {
+            y = x.y;
+            x = x.x;
+        }
+        return Game.DATASTORE.ENTITY[(this.entitiesByLocation[x] || [])[y]];
+    };
 
-Game.Map.prototype.extractEntity = function (ent) {
-  this.attr._entitiesByLocation[ent.getX()+","+ent.getY()] = undefined;
-  this.attr._locationsByEntity[ent.getId()] = undefined;
-  return ent;
-};
-Game.Map.prototype.extractEntityAt = function (x_or_pos,y) {
-  var ent = this.getEntity(x_or_pos,y);
-  if (ent) {
-    this.attr._entitiesByLocation[ent.getX()+","+ent.getY()] = undefined;
-    this.attr._locationsByEntity[ent.getId()] = undefined;
-  }
-  return ent;
-};
+    Map.prototype.removeEntity = function (ent) {
+        var id = ent.getId(), pos = ent.getPos();
+        delete this.entitiesByLocation[pos.x][pos.y];
+        delete this.locationsByEntity[id];
+        delete this.oldLocationsByEntity[id];
+    };
 
+    Map.prototype.chooseTile = function (f, tries) {
+        tries = tries || 200;
 
-Game.Map.prototype.getRandomLocation = function(filter_func) {
-  if (filter_func === undefined) {
-    filter_func = function(tile,tX,tY) { return true; };
-  }
-  var tX,tY,t;
-  do {
-    tX = Game.util.randomInt(0,this.attr._width - 1);
-    tY = Game.util.randomInt(0,this.attr._height - 1);
-    t = this.getTile(tX,tY);
-  } while (! filter_func(t,tX,tY));
-  return {x:tX,y:tY};
-};
+        var x, y;
+        do {
+            x = ROT.RNG.getUniformInt(0, this.getWidth()-1);
+            y = ROT.RNG.getUniformInt(0, this.getHeight()-1);
+            if (!f || f(this.getTile(x,y), x, y)) break;
+        } while (--tries);
+        return {x: x, y: y};
+    };
+    Map.prototype.getRandomWalkableLocation = function (tries) {
+        var map = this;
+        return this.chooseTile(function (t, x,y) {
+            return t.isWalkable() && !map.getEntity(x,y);
+        });
+    };
 
-// tile is walkable and unoccupied
-Game.Map.prototype.getRandomWalkableLocation = function() {
-  var map = this;
-  return this.getRandomLocation(function(t,tX,tY){ return t.isWalkable() && (!map.getEntity(tX,tY)); });
-};
+    return Map;
+})();
 
 Game.Map.prototype.renderOn = function (display,camX,camY) {
-    // console.log("display is ");
-    // console.dir(display);
     var dispW = display._options.width;
     var dispH = display._options.height;
     var xStart = camX-Math.round(dispW/2);
     var yStart = camY-Math.round(dispH/2);
+
     for (var x = 0; x < dispW; x++) {
         for (var y = 0; y < dispH; y++) {
-            // Fetch the glyph for the tile and render it to the screen - sub in wall tiles for nullTiles / out-of-bounds
-            var mapPos = {x:x+xStart,y:y+yStart};
-            var tile = this.getTile(mapPos);
-            if (tile.getName() == 'nullTile') {
-                tile = Game.Tile.wallTile;
-            }
-            tile.draw(display,x,y);
-            var ent = this.getEntity(mapPos);
+            var pos = {x: x+xStart, y: y+yStart};
+            var tile = this.getTile(pos.x, pos.y);
+            tile.draw(display, x,y);
+
+            var ent = this.getEntity(pos);
             if (ent) {
-                var oldPos = this.attr._oldLocationsByEntity[ent.getId()];
-
-                /*
-                console.log( x + (mapPos.x - parseInt(oldPos.substring(0, oldPos.indexOf(","))))*Game.step );
-                */
-
-
-
-
-                var oldPosX = -xStart + parseInt(oldPos.substring(0, oldPos.indexOf(",")));
-                var oldPosY = -yStart + parseInt(oldPos.substring(oldPos.indexOf(",")+1,oldPos.length));
-
+                var old = this.oldLocationsByEntity[ent.getId()];
                 ent.draw(display,
-                         x * Game.step + oldPosX * (1-Game.step),
-                         y * Game.step + oldPosY * (1-Game.step));
+                        x * Game.step + (old.x-xStart) * (1-Game.step),
+                        y * Game.step + (old.y-yStart) * (1-Game.step));
 
-
-                if(Game.step === 1){
-                    this.attr._oldLocationsByEntity[ent.getId()] =
-                        mapPos.x + "," + mapPos.y;
+                if (Game.step === 1) {
+                    this.oldLocationsByEntity[ent.getId()] = pos;
                 }
-
             }
         }
     }
 };
-
-/*
-Game.Map.createEntity = function(x,y, entityName, initMethodCalls){
-    var newEntity = Game.EntityGenerator.craete(entityName);
-    for( i = 0; i<initMethodCalls.length; i++){
-        Game.util.callMethod(newEntity,
-                             initMethodCalls[i]);
-    }
-    this.getMap().addEntity(newEntity, {x:x,y:y});
-    return newEntity;
-};
-*/
 
 Game.Map.prototype.createEntity = function(pos, creationFormat) {
     var newEntity = Game.EntityGenerator.create(creationFormat.entityType);
@@ -227,9 +161,7 @@ Game.Map.prototype.createEntityAroundPos = function(pos, num, radius, creationFo
         var newPos = {};
         newPos.x = Math.round( pos.x + (Math.random() - Math.random()) * radius );
         newPos.y = Math.round( pos.y + (Math.random() - Math.random()) * radius );
-        if(this.withinMapBounds(newPos) && !this.getEntity(newPos)){
-            this.createEntity( newPos, creationFormat);
-        }
+        this.createEntity( newPos, creationFormat);
     }
 };
 

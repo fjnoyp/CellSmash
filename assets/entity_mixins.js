@@ -791,6 +791,7 @@ Game.EntityMixin.Avatar = {
     survived: 0,
 };
 
+/*
 Game.EntityMixin.Growable = {
     META: {
         mixinName: 'Growable',
@@ -849,6 +850,7 @@ Game.EntityMixin.Growable = {
         this.growDir = growDir;
     }
 };
+*/
 
 
 //cells move in concert as one mass normally
