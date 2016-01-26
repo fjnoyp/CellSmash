@@ -177,6 +177,7 @@ Game.CellMoveStrategies = {
     },
 
     "AssassinSwarm": {
+        summary: "Swarm",
         getMoveDeltas: function () {
             var us = this.getPos();
             var friends = [], enemies = [];
@@ -407,7 +408,7 @@ Game.CellMoveStrategies = {
     },
 
     "NoMove": {
-        summary: "Stopped",
+        summary: "Stop moving",
         getMoveDeltas : function () {
             return {x:0, y:0};
         }
@@ -420,9 +421,6 @@ Game.CellMoveStrategies = {
             }
         }
     }
-
-
-
 };
 
 
@@ -504,7 +502,6 @@ Game.EntityMixin.CellController = {
     childrenCells: null,
     moveStrategyStack: null,
     updateMoveStrategies: function () {
-        console.log("update move: " + this.moveStrategyStack[0][0]);
         var strategy = Game.CellMoveStrategies[this.moveStrategyStack[0][0]];
         this.childrenCells.forEach(function (child) {
             child.raiseEntityEvent('cellChange', {moveStrategy: strategy});
@@ -525,7 +522,7 @@ Game.EntityMixin.CellController = {
     },
     decrementStrategy: function () {
         if (this.moveStrategyStack[0][1] < 0) return;
-        if (--this.moveStrategyStack[0][1] < 0) {
+        if (--this.moveStrategyStack[0][1] <= 0) {
             this.moveStrategyStack.shift();
             this.updateMoveStrategies();
         }
@@ -719,6 +716,7 @@ Game.EntityMixin.Avatar = {
                 var args = this.changeStrategyMap[evtData.keyPress];
 
                 if (args) {
+                    if (this.strategyUses[args[0]]-- <= 0) return;
                     this.pushStrategy.apply(this, args);
                     this.updateMoveStrategies();
                 }
@@ -730,10 +728,15 @@ Game.EntityMixin.Avatar = {
     changeStrategyMap: {
         q: ["ClusterAround"],
         e: ["CircleAround"],
-        t: ["NoMove", 20],
-        c: ["MurderSafely", 2],
-        z: ["AssassinSwarm"],
+        r: ["ClusterMove"],
+        t: ["NoMove"],
+        c: ["MurderSafely", 3],
+        z: ["AssassinSwarm", 20],
     },
+    strategyUses: {
+        AssassinSwarm: 10,
+        MurderSafely: 5,
+    }
 };
 
 Game.EntityMixin.Growable = {

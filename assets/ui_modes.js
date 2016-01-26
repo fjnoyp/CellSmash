@@ -69,28 +69,48 @@ Game.UIMode.gamePlay = {
         var fg = Game.UIMode.DEFAULT_COLOR_FG;
         var bg = Game.UIMode.DEFAULT_COLOR_BG;
         this.getMap().renderOn(display,this.attr._cameraX,this.attr._cameraY);
-        // display.drawText(1,1,"game play",fg,bg); // DEV
-        // display.drawText(1,3,"press [Enter] to win",fg,bg);
-        // display.drawText(1,4,"press [Esc] to lose",fg,bg);
-        // display.drawText(1,5,"press = to save, restore, or start a new game",fg,bg);
-
-        //this.renderAvatar(display);
     },
     renderAvatarInfo: function (display) {
         var avatar = this.getAvatar();
-        display.drawText(1,1, "avatar x: " + this.getAvatar().getX());
-        display.drawText(1,2, "avatar y: " + this.getAvatar().getY());
-        display.drawText(1,4, "Swarm:    " + avatar.childrenCells.size);
-        var row = 8;
-        display.drawText(1,7, "Orders given:");
+
+        var ro = 1;
+        display.drawText(1,ro++, "avatar x: " + this.getAvatar().getX());
+        display.drawText(1,ro++, "avatar y: " + this.getAvatar().getY());
+        display.drawText(1,ro++, "Swarm:    " + avatar.childrenCells.size);
+
+        var ro = 5;
+        display.drawText(1,ro++, "Orders given:");
         avatar.moveStrategyStack.forEach(function (s) {
+            if (ro > 9) return;
             var name = Game.CellMoveStrategies[s[0]].summary || s[0];
             if (s[1] < 0) {
-                display.drawText(4, row++, name);
+                display.drawText(3,ro++, name);
             }
             else {
-                display.drawText(4, row++, name + " (" + s[1] + " turns)");
+                var turn = s[1] === 1 ? " turn)" : " turns)";
+                display.drawText(3,ro++, name + " (" + s[1] + turn);
             }
+        });
+        if (ro > 9) {
+            display.drawText(3,ro, "[... more ...]");
+        }
+
+        var ro = 12;
+        display.drawText(1,ro++, "Commands:");
+        display.drawText(3,ro++, "w↑, a←, s↓, d→");
+        //display.drawText(3,ro++, "h←, j↓, k↑, l→");
+        ["q", "e", "r", "t", "z", "c"].forEach(function (c) {
+            var args = avatar.changeStrategyMap[c];
+            if (!args) return;
+            var uses = avatar.strategyUses[args[0]];
+            if (uses <= 0) return;
+            var name = Game.CellMoveStrategies[args[0]].summary || args[0];
+
+            var desc = "["+c+"] " + name;
+            if (uses > 0) {
+                desc += " (" + uses + ")";
+            }
+            display.drawText(3,ro++, desc);
         });
     },
     moveAvatar: function (dx,dy) {
@@ -123,15 +143,19 @@ Game.UIMode.gamePlay = {
             }
 
             switch (pressedKey) {
+                case "k":
                 case "w":
                     this.moveAvatar(0,-1);
                     break;
+                case "h":
                 case "a":
                     this.moveAvatar(-1,0);
                     break;
+                case "j":
                 case "s":
                     this.moveAvatar(0,1);
                     break;
+                case "l":
                 case "d":
                     this.moveAvatar(1,0);
                     break;
