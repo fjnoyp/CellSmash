@@ -234,11 +234,7 @@ Game.CellMoveStrategies = {
                     ClusterAround: 5,
                     CircleSafely: children.size,
                 });
-                children.forEach(function (child) {
-                    child.raiseEntityEvent('cellChange', {
-                        moveStrategy: strategy
-                    });
-                });
+                this.pushStrategy(strategy);
             }
 
             return Game.CellMoveStrategies.RandomSweep.getMoveDeltas.call(this);
@@ -516,6 +512,7 @@ Game.EntityMixin.CellController = {
         else {
             this.moveStrategyStack.unshift([strat, dur]);
         }
+        this.updateMoveStrategies();
     },
     decrementStrategy: function () {
         if (this.moveStrategyStack[0][1] < 0) return;
@@ -685,11 +682,6 @@ Game.EntityMixin.EnemyAvatar = {
         mixinName: 'EnemyAvatar',
         mixinGroup: 'Avatar',
         listeners: {
-            'childInfected': function (evtData) {
-                if (this.childrenCells.size <= 0) {
-                    Game.switchUiMode(Game.UIMode.gameWin);
-                }
-            }
         }
     },
 
@@ -719,7 +711,6 @@ Game.EntityMixin.Avatar = {
                 if (args) {
                     if (this.strategyUses[args[0]]-- <= 0) return;
                     this.pushStrategy.apply(this, args);
-                    this.updateMoveStrategies();
                 }
             },
         },
