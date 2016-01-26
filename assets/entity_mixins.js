@@ -225,22 +225,6 @@ Game.CellMoveStrategies = {
         }
     },
 
-    "CircleAround" : {
-        getMoveDeltas: function(){
-            var moveDeltas = Game.CellMoveStrategies._moveToward(
-                    this.getX(),
-                    this.getY(),
-                    this.getTargetEntity().getPos(),
-                    40, 60);
-            if(moveDeltas.x === 0 && moveDeltas.y === 0){
-                return Game.CellMoveStrategies._circleAround(
-                        this.getPos(),
-                        this.getTargetEntity().getPos() );
-            }
-            return moveDeltas;
-        },
-    },
-
     "SwarmWhenWeak": {
         getMoveDeltas: function () {
             var children = this.childrenCells;
@@ -288,17 +272,20 @@ Game.CellMoveStrategies = {
         getMoveDeltas: function () {
             var moveDeltas = Game.CellMoveStrategies._moveToInfect.call(this,this.getPos());
             if (moveDeltas) {
-              this.raiseEntityEvent('cellChange', {
-                moveStrategy: "NoMove",
-              });
-              return moveDeltas;
+                this.raiseEntityEvent('cellChange', {
+                    moveStrategy: "NoMove",
+                });
+                return moveDeltas;
             }
             return this.getMoveDeltas();
         },
+    },
 
-        "MurderSafely" : function () {
+    "MurderSafely" : {
+        summary: "Move to kill",
+        getMoveDeltas: function () {
             var murder = Game.CellMoveStrategies._moveToInfect.call(this, this.getPos());
-            if (murder) return murder;
+            if (murder.x || murder.y) return murder;
 
             var tries = 10;
             var deltas, danger;
@@ -312,7 +299,7 @@ Game.CellMoveStrategies = {
                 });
             } while (danger && --tries);
             return deltas;
-        }
+        },
     },
 
     "CircleSafely" : {
@@ -333,6 +320,7 @@ Game.CellMoveStrategies = {
     },
 
     "CircleAround" : {
+        summary: "Circle around",
         getMoveDeltas: function () {
             return Game.CellMoveStrategies._circleAround(
                     this.getPos(),
@@ -341,6 +329,7 @@ Game.CellMoveStrategies = {
     },
 
     "ClusterAround" : {
+        summary: "Follow closely",
         getMoveDeltas: function () {
             var targetPos = this.getTargetEntity().getPos();
             var difX = targetPos.x - this.getX();
@@ -376,6 +365,7 @@ Game.CellMoveStrategies = {
     },
 
     "WanderAround" : {
+        summary: "Random shuffle",
         getMoveDeltas: function () {
             return this.getMoveDeltas();
         }
@@ -394,6 +384,7 @@ Game.CellMoveStrategies = {
     },
 
     "ClusterMove" : {
+        summary: "Follow with gap",
         getMoveDeltas : function () {
             var neighborCount = 0;
             var ourX = this.getX();
@@ -416,6 +407,7 @@ Game.CellMoveStrategies = {
     },
 
     "NoMove": {
+        summary: "Stopped",
         getMoveDeltas : function () {
             return {x:0, y:0};
         }
@@ -519,7 +511,7 @@ Game.EntityMixin.CellController = {
                         this.pushStrategy("NoMove", 20);
                         break;
                     case "c":
-                        this.pushStrategy("OpportunisticMurder", 20);
+                        this.pushStrategy("MurderSafely", 2);
                         break;
                     case "z":
                         this.pushStrategy("AssassinSwarm");
@@ -548,6 +540,9 @@ Game.EntityMixin.CellController = {
         console.log(dur);
         if (dur < 0) {
             this.moveStrategyStack = [[strat, dur]];
+        }
+        else if (strat === this.moveStrategyStack[0][0]) {
+            this.moveStrategyStack[0][1] += dur;
         }
         else {
             this.moveStrategyStack.unshift([strat, dur]);
