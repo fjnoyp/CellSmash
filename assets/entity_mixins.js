@@ -755,6 +755,10 @@ Game.EntityMixin.Avatar = {
             'takeTurn': function () {
                 this.survived++;
                 this.score += this.childrenCells.size;
+
+                if (this.survived % 50  === 0) {
+                    this.strategyUses.ClusterAround = 1;
+                }
             },
             'childInfected': function (evtData) {
                 if (this.childrenCells.size <= 0) {
@@ -776,7 +780,7 @@ Game.EntityMixin.Avatar = {
 
     isInfectable: false,
     changeStrategyMap: {
-        q: ["ClusterAround"],
+        q: ["ClusterAround", 25],
         e: ["CircleAround"],
         r: ["ClusterMove"],
         t: ["NoMove"],
@@ -784,6 +788,7 @@ Game.EntityMixin.Avatar = {
         z: ["AssassinSwarm", 20],
     },
     strategyUses: {
+        ClusterAround: 1,
         AssassinSwarm: 10,
         MurderSafely: 5,
     },
