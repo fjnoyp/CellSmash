@@ -203,7 +203,7 @@ Game.UIMode.gamePlay = {
 
         map.createEntityRandomPos( 25, Game.creationFormats.groupInfector );
         map.createEntitiesAroundRandomPos( 6, 4, 3, Game.creationFormats.clumpSwarmer );
-        map.createEntitiesAroundRandomPos( 2, 10, 5, Game.creationFormats.corrupter );
+        map.createEntitiesAroundRandomPos( 2, 15, 4, Game.creationFormats.corrupter );
         
         map.createEntityRandomPos( 20, Game.creationFormats.flytrap );
         map.createEntityRandomPos( 35, Game.creationFormats.wanderer );

@@ -251,7 +251,7 @@ Game.CellMoveStrategies = {
             if(enemies.length > 0){
                 if(!this.targetEntity || this.targetEntity.isSameCellType(this)){
                     this.targetEntity = enemies.random();
-                    this.moveAngle = Game.util.getAngle( this.targetEntity.getPos(), this.getPos()); 
+                    //this.moveAngle = Game.util.getAngle( this.targetEntity.getPos(), this.getPos()); 
                 }
 
                 var curAngDif = Game.util.getAngle( this.targetEntity.getPos(), this.getPos()) - this.moveAngle; 
@@ -275,7 +275,7 @@ Game.CellMoveStrategies = {
                 else{
                     //move towards targetEntity 
                     var angDif = Game.util.getAngle( this.targetEntity.getPos(), this.getPos() );
-                    this.moveAngle += Game.util.clamp( angDif-this.moveAngle, - Math.PI/15, Math.PI/15);
+                    this.moveAngle += Game.util.clamp( angDif-this.moveAngle, - Math.PI/10, Math.PI/10);
                     return {x: Math.round(Math.cos(this.moveAngle)), y: Math.round(Math.sin(this.moveAngle)) };
                 }
             }
@@ -604,8 +604,8 @@ Game.EntityMixin.CellInfect = {
                     var recipient = evtData.recipient;
                     if (recipient.isInfectable && !recipient.isSameCellType(this)) {
                         //always copy same apperance regardless of infection package
-                        recipient.setAppearance(this.getFg(), this.getChar());
-
+                        recipient.setFg(this.getFg());
+                        
                         //this allows cells to infect another cell but not neccessarily make a copy of itself
                         if (this.infectionPackage) {
                             if(this.infectionPackage.moveStrategy){
@@ -620,7 +620,8 @@ Game.EntityMixin.CellInfect = {
                         }
                         else {
                             var exparent = recipient.getParentCell();
-
+                            
+                            recipient.setAppearance(this.getFg(), this.getChar());
                             recipient.setInfectionPackage(null);
                             recipient.setMoveStrategy(this.getMoveStrategy());
                             recipient.setParentCell(this.getParentCell());
