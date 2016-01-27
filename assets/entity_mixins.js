@@ -777,6 +777,13 @@ Game.EntityMixin.Avatar = {
                 if (this.survived % 50  === 0) {
                     this.strategyUses.ClusterAround = 1;
                 }
+
+                if (this.survived % 300 === 0) {
+                  this.strategyUses.AssassinSwarm = Math.min(this.strategyUses.AssassinSwarm+1, 10);
+                }
+                if (this.survived % 600 === 0) {
+                  this.strategyUses.MurderSafely = Math.min(this.strategyUses.MurderSafely+1, 5);
+                }
             },
             'childInfected': function (evtData) {
                 if (this.childrenCells.size <= 0) {
@@ -808,8 +815,8 @@ Game.EntityMixin.Avatar = {
     },
     strategyUses: {
         ClusterAround: 1,
-        AssassinSwarm: 10,
-        MurderSafely: 5,
+        AssassinSwarm: 5,
+        MurderSafely: 3,
     },
     score: 0,
     survived: 0,
