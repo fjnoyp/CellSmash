@@ -275,7 +275,7 @@ Game.CellMoveStrategies = {
                 else{
                     //move towards targetEntity 
                     var angDif = Game.util.getAngle( this.targetEntity.getPos(), this.getPos() );
-                    this.moveAngle += Game.util.clamp( angDif-this.moveAngle, - Math.PI/10, Math.PI/10);
+                    this.moveAngle += Game.util.clamp( angDif-this.moveAngle, - Math.PI/13, Math.PI/13);
                     return {x: Math.round(Math.cos(this.moveAngle)), y: Math.round(Math.sin(this.moveAngle)) };
                 }
             }
@@ -608,14 +608,19 @@ Game.EntityMixin.CellInfect = {
                         
                         //this allows cells to infect another cell but not neccessarily make a copy of itself
                         if (this.infectionPackage) {
-                            if(this.infectionPackage.moveStrategy){
+                            if(this.infectionPackage.moveStrategy && Math.random() > .8){
                                 recipient.setMoveStrategy(this.infectionPackage.moveStrategy);
+                                recipient.setChar(this.infectionPackage.chr); 
                             }
+                            else if(this.infectionPackage.moveStrategy){
+                                recipient.setMoveStrategy(this.getMoveStrategy());
+                                recipient.setParentCell(this.getParentCell());
+                                recipient.setTargetEntity(this.getTargetEntity());
+                                recipient.setChar(this.getChar());
+                            }
+                            
                             if(this.infectionPackage.infectionPackage){
                                 recipient.setInfectionPackage(this.infectionPackage.infectionPackage);
-                            }
-                            if(this.infectionPackage.chr){
-                                recipient.setChar(this.infectionPackage.chr);
                             }
                         }
                         else {

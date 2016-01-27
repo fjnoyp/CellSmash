@@ -196,17 +196,18 @@ Game.UIMode.gamePlay = {
 
         map.createEntityAroundPos( avatar.getPos(), 20, 3, Game.creationFormats.cellFollower );
 
-        map.createEntityRandomPos( 15, Game.creationFormats.directionalSwarmer );
-        map.createEntityRandomPos( 10, Game.creationFormats.wanderer );
+        map.createEntityRandomPos( 19, Game.creationFormats.directionalSwarmer );
 
         //other cells
+        map.createEntitiesAroundRandomPos( 2, 20, 3, Game.creationFormats.corrupter );
 
-        map.createEntityRandomPos( 25, Game.creationFormats.groupInfector );
-        map.createEntitiesAroundRandomPos( 6, 4, 3, Game.creationFormats.clumpSwarmer );
-        map.createEntitiesAroundRandomPos( 2, 15, 4, Game.creationFormats.corrupter );
+        map.createEntityRandomPos( 45, Game.creationFormats.groupInfector );
+        map.createEntitiesAroundRandomPos( 6, 5, 3, Game.creationFormats.clumpSwarmer );
+
         
-        map.createEntityRandomPos( 20, Game.creationFormats.flytrap );
-        map.createEntityRandomPos( 35, Game.creationFormats.wanderer );
+        map.createEntitiesAroundRandomPos( 3, 10, 1 , Game.creationFormats.flytrap );
+        map.createEntityRandomPos( 20, Game.creationFormats.wanderer );
+
         //map.createEntitiesAroundRandomPos( 2, 4, 3, Game.creationFormats.assassinSwarm );
 
         //other cell groups
