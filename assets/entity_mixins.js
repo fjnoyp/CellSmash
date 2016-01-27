@@ -383,6 +383,18 @@ Game.CellMoveStrategies = {
         }
     },
 
+    "RunAway" : {
+        summary: "Get away",
+        getMoveDeltas: function () {
+            var strategy = Game.CellMoveStrategies[ROT.RNG.getWeightedValue({
+                _moveToward: 8,
+                _circleAround: 2,
+            })];
+            var deltas = strategy.call(this, this.getPos(), this.targetEntity.getPos());
+            return {x: -deltas.x, y: -deltas.y};
+        }
+    },
+
     "ClusterAround" : {
         summary: "Follow closely",
         getMoveDeltas: function () {
@@ -792,6 +804,7 @@ Game.EntityMixin.Avatar = {
         t: ["NoMove"],
         c: ["MurderSafely", 3],
         z: ["AssassinSwarm", 20],
+        f: ["RunAway"],
     },
     strategyUses: {
         ClusterAround: 1,

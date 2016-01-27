@@ -89,7 +89,7 @@ Game.UIMode.gamePlay = {
         display.drawText(1,ro++, "Commands:");
         display.drawText(3,ro++, "w↑, a←, s↓, d→");
         //display.drawText(3,ro++, "h←, j↓, k↑, l→");
-        ["q", "e", "r", "t", "z", "c"].forEach(function (c) {
+        ["q", "e", "r", "t", "z", "c", "f"].forEach(function (c) {
             var args = avatar.changeStrategyMap[c];
             if (!args) return;
             var uses = avatar.strategyUses[args[0]];
@@ -169,6 +169,7 @@ Game.UIMode.gamePlay = {
                 case "t":
                 case "c":
                 case "z":
+                case "f":
                     this.getAvatar().raiseEntityEvent("cellChange", {keyPress: pressedKey});
                     break;
             }
